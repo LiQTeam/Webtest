@@ -136,7 +136,7 @@ CREATE TABLE {P}cp_transactions (
   gateway_ref    VARCHAR(128)    NULL,            -- کد پیگیری بانک
   reason         VARCHAR(255)    NULL,            -- اجباری برای type='adjust'
   meta_json      JSON            NULL,
-  ip             VARBINARY(16)   NULL,
+  ip             VARCHAR(45)     NULL,
   created_by     BIGINT UNSIGNED NULL,            -- ادمین در تعدیل دستی
   created_at     DATETIME        NOT NULL,
   PRIMARY KEY (id),
@@ -176,7 +176,7 @@ CREATE TABLE {P}cp_orders (
   error_message     VARCHAR(500)    NULL,
   sync_attempts     SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   next_sync_at      DATETIME        NULL,
-  ip                VARBINARY(16)   NULL,
+  ip                VARCHAR(45)     NULL,
   created_at        DATETIME        NOT NULL,
   updated_at        DATETIME        NOT NULL,
   completed_at      DATETIME        NULL,
@@ -237,7 +237,7 @@ CREATE TABLE {P}cp_otp (
   code_hash   CHAR(64)        NOT NULL,   -- sha256(code + salt) — کد خام ذخیره نمی‌شود
   purpose     ENUM('login','register','reset','verify') NOT NULL,
   attempts    TINYINT UNSIGNED NOT NULL DEFAULT 0,
-  ip          VARBINARY(16)   NULL,
+  ip          VARCHAR(45)     NULL,
   expires_at  DATETIME        NOT NULL,
   consumed_at DATETIME        NULL,
   created_at  DATETIME        NOT NULL,
@@ -249,7 +249,7 @@ CREATE TABLE {P}cp_sessions (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id     BIGINT UNSIGNED NOT NULL,
   token_hash  CHAR(64)        NOT NULL,
-  ip          VARBINARY(16)   NULL,
+  ip          VARCHAR(45)     NULL,
   user_agent  VARCHAR(255)    NULL,
   device_label VARCHAR(64)    NULL,
   last_seen   DATETIME        NOT NULL,
@@ -273,7 +273,7 @@ CREATE TABLE {P}cp_audit_log (
   before_json JSON            NULL,
   after_json  JSON            NULL,
   reason      VARCHAR(255)    NULL,
-  ip          VARBINARY(16)   NULL,
+  ip          VARCHAR(45)     NULL,
   created_at  DATETIME        NOT NULL,
   PRIMARY KEY (id),
   KEY idx_object (object_type, object_id, created_at),

@@ -1,0 +1,21 @@
+/* ClickPop — استایل پنل مدیریت */
+.cp-admin .cp-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:12px;margin:18px 0 26px;
+}
+.cp-admin .cp-card{
+  background:#fff;border:1px solid #dcdcde;border-radius:10px;padding:14px 16px;
+}
+.cp-admin .cp-card.warn{border-color:#dba617;background:#fcf9e8}
+.cp-admin .cp-card__l{display:block;font-size:12px;color:#646970}
+.cp-admin .cp-card__v{display:block;font-size:20px;font-weight:700;margin-top:4px;color:#1d2327}
+.cp-admin .cp-table th{width:240px}
+.cp-admin .cp-pill{
+  display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;
+}
+.cp-admin .cp-pill--ok{background:#e4f6ec;color:#0f5f33}
+.cp-admin .cp-pill--run{background:#e6eefd;color:#0040b7}
+.cp-admin .cp-pill--wait,.cp-admin .cp-pill--part,.cp-admin .cp-pill--warn{background:#fdf1de;color:#7a4800}
+.cp-admin .cp-pill--bad{background:#fceae8;color:#a3170f}
+.cp-admin .cp-neg{color:#a3170f;font-weight:700}
+.cp-admin .cp-adjust{max-width:760px}
