@@ -1,0 +1,41 @@
+# Dependencies
+/vendor/
+/node_modules/
+**/vendor/
+**/node_modules/
+
+# Build output
+**/assets/dist/
+/dist/
+/build/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# WordPress local env
+/wp-env/
+/.wp-env.override.json
+/wordpress/
+
+# Tooling caches
+.phpunit.result.cache
+.phpcs-cache
+/.phpstan/
+/coverage/
+/.lighthouseci/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs
+*.log
+/logs/

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1140 348" width="1140" height="348" role="img" aria-label="clickPop">
+<title>clickPop</title>
+<g transform="translate(170.80 177.20) scale(0.83411)">
+<path d="M 147.91 5.17 A 148.0 148.0 0 1 1 -5.17 -147.91" fill="none" stroke="#0A1C3D" stroke-width="56.0" stroke-linecap="round"/>
+<path d="M 143.12 -173.67 L 45.54 -98.71 L 76.65 -93.06 L 56.85 -44.97 L 83.72 -35.07 L 103.52 -83.16 L 144.53 -67.60 Z" fill="#0A1C3D" stroke="#0A1C3D" stroke-width="20.0" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+<g transform="translate(387.61 238.00)">
+<g fill="none" stroke="#0A1C3D" stroke-width="25.0" stroke-linecap="round" stroke-linejoin="round">
+<path d="M 72.04 -80.34 A 37.5 37.5 0 1 0 72.04 -19.66" transform="translate(0.00 0)"/>
+<path d="M 12.5 -127.50 L 12.5 -12.5" transform="translate(103.54 0)"/>
+<path d="M 12.5 -87.50 L 12.5 -12.5" transform="translate(151.54 0)"/>
+<path d="M 72.04 -80.34 A 37.5 37.5 0 1 0 72.04 -19.66" transform="translate(199.54 0)"/>
+<path d="M 12.5 -127.50 L 12.5 -12.5" transform="translate(303.08 0)"/>
+<path d="M 70 -90 L 15.0 -52" transform="translate(303.08 0)"/>
+<path d="M 34 -64.7 L 72 -12.5" transform="translate(303.08 0)"/>
+<path d="M 12.5 -127.50 L 12.5 -12.5" transform="translate(412.58 0)"/>
+<path d="M 12.5 -127.50 L 45 -127.50 A 32 32 0 1 1 45 -63.50 L 12.5 -63.50" transform="translate(412.58 0)"/>
+<path d="M 12.50 -50.0 A 37.5 37.5 0 1 1 87.50 -50.0 A 37.5 37.5 0 1 1 12.50 -50.0" transform="translate(517.08 0)"/>
+<path d="M 12.5 -87.50 L 12.5 39.50" transform="translate(634.08 0)"/>
+<path d="M 12.5 -70.00 A 37.5 37.5 0 1 1 12.5 -30.00" transform="translate(634.08 0)"/>
+</g>
+<circle cx="164.04" cy="-121.0" r="14.5" fill="#0A1C3D"/>
+</g>
+</svg>
