@@ -15,8 +15,59 @@
 | SSL | اجباری | Let's Encrypt یا گواهی معتبر |
 | اکستنشن PHP | `openssl`, `curl`, `mbstring`, `json` | + `intl` |
 
-> **InnoDB اجباری است.** کیف پول به تراکنش و قفل ردیفی نیاز دارد؛ روی MyISAM دادهٔ مالی خراب می‌شود.
-> بررسی: `SHOW TABLE STATUS WHERE Engine <> 'InnoDB';` باید خالی برگردد.
+> **InnoDB اجباری است.** کیف پول به تراکنش و قفل ردیفی نیاز دارد؛ روی MyISAM دو سفارش همزمان
+> می‌توانند موجودی را منفی کنند و مغایرت مالی بی‌صدا بماند.
+
+بررسی در **phpMyAdmin ← تب SQL**:
+
+```sql
+SHOW TABLE STATUS WHERE Engine <> 'InnoDB';
+```
+
+**باید خالی برگردد.**
+
+### اگر جدول‌ها MyISAM بودند
+
+روی بعضی میزبان‌های اشتراکی `default_storage_engine` هنوز MyISAM است و کل وردپرس با MyISAM نصب می‌شود.
+
+**۱. اول پشتیبان بگیرید** — phpMyAdmin ← Export ← Quick ← SQL ← Go.
+
+**۲. تبدیل کنید** (روی سایت تازه‌نصب چند ثانیه طول می‌کشد):
+
+```sql
+ALTER TABLE `click_commentmeta`        ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_comments`           ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_links`              ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_options`            ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_postmeta`           ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_posts`              ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_term_relationships` ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_term_taxonomy`      ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_termmeta`           ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_terms`              ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_usermeta`           ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+ALTER TABLE `click_users`              ENGINE=InnoDB ROW_FORMAT=DYNAMIC;
+```
+
+پیشوند `click_` را با پیشوند خودتان جایگزین کنید، یا فهرست را خودکار بسازید:
+
+```sql
+SELECT CONCAT('ALTER TABLE `', TABLE_NAME, '` ENGINE=InnoDB ROW_FORMAT=DYNAMIC;') AS stmt
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = DATABASE() AND ENGINE = 'MyISAM';
+```
+
+**۳. دوباره بررسی کنید** — کوئری `SHOW TABLE STATUS` باید خالی برگردد.
+
+**۴. از میزبان بخواهید پیش‌فرض سرور را عوض کند** تا افزونه‌های دیگر هم MyISAM نسازند:
+
+```ini
+default_storage_engine = InnoDB
+```
+
+> جدول‌های خود کلیک‌پاپ صریحاً با `ENGINE=InnoDB` ساخته می‌شوند و به پیش‌فرض سرور وابسته نیستند.
+> اگر با این حال جدولی InnoDB نبود، افزونه در پیشخوان هشدار قرمز می‌دهد و دکمهٔ **تبدیل یک‌کلیکی** نشان می‌دهد
+> (فقط جدول‌های `cp_` را لمس می‌کند؛ جدول‌های هستهٔ وردپرس دست‌نخورده می‌مانند).
 
 ---
 
