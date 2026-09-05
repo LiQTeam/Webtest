@@ -27,6 +27,8 @@ final class Plugin {
 		if ( is_admin() ) {
 			Menu::register();
 			add_action( 'admin_notices', [ self::class, 'encryptionNotice' ] );
+			add_action( 'admin_notices', [ self::class, 'storageEngineNotice' ] );
+			add_action( 'admin_post_clickpop_convert_innodb', [ self::class, 'handleConvertEngine' ] );
 		}
 
 		add_action( 'init', [ self::class, 'registerServicePagePostType' ] );
@@ -73,6 +75,92 @@ final class Plugin {
 				'show_in_rest' => true,
 			]
 		);
+	}
+
+	/**
+	 * هشدار موتور ذخیره‌سازی.
+	 *
+	 * روی میزبان‌هایی که default_storage_engine=MyISAM است، جدول‌ها بدون تراکنش
+	 * و بدون قفل ردیفی ساخته می‌شوند. در آن حالت دو سفارش همزمان می‌توانند
+	 * موجودی را منفی کنند و مغایرت مالی بی‌صدا بماند — پس این هشدار قابل رد شدن نیست.
+	 */
+	public static function storageEngineNotice(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$bad = get_transient( 'clickpop_non_innodb' );
+
+		if ( false === $bad ) {
+			$bad = Installer::nonInnodbTables();
+			set_transient( 'clickpop_non_innodb', $bad, HOUR_IN_SECONDS );
+		}
+
+		if ( ! is_array( $bad ) || ! $bad ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-error"><p><strong>%s</strong> %s</p><p><code>%s</code></p><p>%s</p></div>',
+			esc_html__( 'کلیک‌پاپ — خطر داده‌ی مالی:', 'clickpop-core' ),
+			esc_html(
+				sprintf(
+					/* translators: %d: number of tables */
+					__( '%d جدول کلیک‌پاپ روی موتور InnoDB نیست. کیف پول بدون تراکنش و قفل ردیفی کار می‌کند و دو سفارش همزمان می‌تواند موجودی را منفی کند. تا رفع این مورد، فروش را شروع نکنید.', 'clickpop-core' ),
+					count( $bad )
+				)
+			),
+			esc_html( implode( ' · ', $bad ) ),
+			wp_kses_post(
+				sprintf(
+					'<a class="button button-primary" href="%s">%s</a>',
+					esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=clickpop_convert_innodb' ), 'clickpop_convert_innodb' ) ),
+					esc_html__( 'تبدیل جدول‌های کلیک‌پاپ به InnoDB', 'clickpop-core' )
+				)
+			)
+		);
+	}
+
+	/**
+	 * تبدیل یک‌کلیکی جدول‌های افزونه به InnoDB.
+	 *
+	 * فقط جدول‌های با پیشوند cp_ را لمس می‌کند؛ جدول‌های هستهٔ وردپرس دست‌نخورده می‌مانند
+	 * (تبدیل آن‌ها تصمیم مدیر است و باید با پشتیبان‌گیری انجام شود).
+	 */
+	public static function handleConvertEngine(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'دسترسی لازم را ندارید.', 'clickpop-core' ), '', [ 'response' => 403 ] );
+		}
+
+		check_admin_referer( 'clickpop_convert_innodb' );
+
+		$result = Installer::convertToInnodb();
+
+		delete_transient( 'clickpop_non_innodb' );
+
+		$message = $result['failed']
+			? sprintf(
+				/* translators: 1: converted count, 2: failed table names */
+				__( '%1$d جدول تبدیل شد. تبدیل این‌ها ناموفق بود: %2$s', 'clickpop-core' ),
+				count( $result['converted'] ),
+				implode( '، ', $result['failed'] )
+			)
+			: sprintf(
+				/* translators: %d: converted count */
+				__( '%d جدول با موفقیت به InnoDB تبدیل شد.', 'clickpop-core' ),
+				count( $result['converted'] )
+			);
+
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'page'   => 'clickpop',
+					'cp_msg' => rawurlencode( $message ),
+				],
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	public static function encryptionNotice(): void {

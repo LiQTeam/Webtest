@@ -40,6 +40,10 @@ final class Installer {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		// ENGINE=InnoDB صریح نوشته می‌شود: روی میزبان‌هایی که
+		// default_storage_engine=MyISAM است، حذف این عبارت یعنی جدول‌های مالی
+		// بدون تراکنش و بدون قفل ردیفی ساخته می‌شوند — و خرابی داده بی‌صدا می‌ماند.
+
 		$charset = $wpdb->get_charset_collate();
 		$sql     = [];
 
@@ -62,7 +66,7 @@ final class Installer {
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY (id),
 			UNIQUE KEY uq_slug (slug)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'categories' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -78,7 +82,7 @@ final class Installer {
 			PRIMARY KEY (id),
 			UNIQUE KEY uq_prov_slug (provider_id, slug),
 			KEY idx_brand_status (brand_slug, status, sort_order)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'services' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -105,7 +109,7 @@ final class Installer {
 			PRIMARY KEY (id),
 			UNIQUE KEY uq_provider_service (provider_id, remote_service_id),
 			KEY idx_cat_status (category_id, status, sort_order)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'pricing_rules' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -121,7 +125,7 @@ final class Installer {
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY (id),
 			KEY idx_scope (scope, scope_ref, active, priority)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'wallets' ) . " (
 			user_id BIGINT UNSIGNED NOT NULL,
@@ -129,7 +133,7 @@ final class Installer {
 			held BIGINT UNSIGNED NOT NULL DEFAULT 0,
 			updated_at DATETIME NOT NULL,
 			PRIMARY KEY (user_id)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'transactions' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -153,7 +157,7 @@ final class Installer {
 			KEY idx_user_time (user_id, created_at),
 			KEY idx_type_status (type, status, created_at),
 			KEY idx_ref (ref_type, ref_id)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'orders' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -185,7 +189,7 @@ final class Installer {
 			KEY idx_remote (provider_id, remote_order_id),
 			KEY idx_user_status (user_id, status, created_at),
 			KEY idx_sync (status, next_sync_at)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'tickets' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -203,7 +207,7 @@ final class Installer {
 			PRIMARY KEY (id),
 			KEY idx_user_status (user_id, status, last_reply_at),
 			KEY idx_queue (status, department, last_reply_at)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'ticket_messages' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -215,7 +219,7 @@ final class Installer {
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY (id),
 			KEY idx_ticket_time (ticket_id, created_at)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'audit_log' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -231,7 +235,7 @@ final class Installer {
 			PRIMARY KEY (id),
 			KEY idx_object (object_type, object_id, created_at),
 			KEY idx_actor (actor_id, created_at)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		$sql[] = 'CREATE TABLE ' . self::table( 'api_log' ) . " (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -244,7 +248,7 @@ final class Installer {
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY (id),
 			KEY idx_provider_time (provider_id, created_at)
-		) {$charset};";
+		) ENGINE=InnoDB {$charset};";
 
 		foreach ( $sql as $statement ) {
 			dbDelta( $statement );
@@ -253,6 +257,65 @@ final class Installer {
 		self::seedDefaultRule();
 
 		update_option( self::OPTION_DB_VERSION, CLICKPOP_DB_VERSION, false );
+	}
+
+	/**
+	 * جدول‌های cp_ که موتورشان InnoDB نیست.
+	 *
+	 * @return string[]
+	 */
+	public static function nonInnodbTables(): array {
+		global $wpdb;
+
+		$like = $wpdb->esc_like( $wpdb->prefix . 'cp_' ) . '%';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$rows = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT TABLE_NAME FROM information_schema.TABLES
+				 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME LIKE %s AND ENGINE <> 'InnoDB'",
+				$like
+			)
+		);
+
+		return array_map( 'strval', (array) $rows );
+	}
+
+	/**
+	 * تبدیل جدول‌های cp_ به InnoDB.
+	 *
+	 * فقط جدول‌های خود افزونه؛ به جدول‌های هستهٔ وردپرس دست نمی‌زند.
+	 *
+	 * @return array{converted:string[],failed:string[]}
+	 */
+	public static function convertToInnodb(): array {
+		global $wpdb;
+
+		$converted = [];
+		$failed    = [];
+
+		foreach ( self::nonInnodbTables() as $table ) {
+			// نام جدول از information_schema همین دیتابیس می‌آید، نه از ورودی کاربر.
+			$safe = preg_replace( '/[^A-Za-z0-9_]/', '', $table );
+
+			if ( '' === (string) $safe ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$ok = $wpdb->query( "ALTER TABLE `{$safe}` ENGINE=InnoDB ROW_FORMAT=DYNAMIC" );
+
+			if ( false === $ok ) {
+				$failed[] = $safe;
+			} else {
+				$converted[] = $safe;
+			}
+		}
+
+		return [
+			'converted' => $converted,
+			'failed'    => $failed,
+		];
 	}
 
 	/** یک قاعدهٔ سود سراسری پیش‌فرض تا سیستم بدون پیکربندی هم قیمت بدهد. */

@@ -44,6 +44,15 @@ final class DashboardPage {
 		echo '<div class="wrap cp-admin">';
 		printf( '<h1>%s</h1>', esc_html__( 'کلیک‌پاپ — نمای کلی', 'clickpop-core' ) );
 
+		// پیام نتیجهٔ همگام‌سازی یا تبدیل موتور جدول.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- فقط نمایش متن نتیجه.
+		if ( isset( $_GET['cp_msg'] ) ) {
+			printf(
+				'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+				esc_html( sanitize_text_field( wp_unslash( $_GET['cp_msg'] ) ) )
+			);
+		}
+
 		echo '<div class="cp-grid">';
 		self::card( __( 'سفارش ۳۰ روز اخیر', 'clickpop-core' ), number_format_i18n( (int) ( $stats->total ?? 0 ) ) );
 		self::card( __( 'در حال انجام', 'clickpop-core' ), number_format_i18n( (int) ( $stats->running ?? 0 ) ) );
@@ -69,6 +78,20 @@ final class DashboardPage {
 				? '<strong style="color:#b32d2e">' . esc_html__( 'باز — تماس‌ها موقتاً متوقف است', 'clickpop-core' ) . '</strong>'
 				: esc_html__( 'بسته', 'clickpop-core' )
 		);
+		$bad_engine = \ClickPop\Core\Database\Installer::nonInnodbTables();
+		self::row(
+			__( 'موتور جدول‌های کلیک‌پاپ', 'clickpop-core' ),
+			$bad_engine
+				? '<strong style="color:#b32d2e">' . esc_html(
+					sprintf(
+						/* translators: %d: table count */
+						__( '%d جدول روی InnoDB نیست — کیف پول بدون تراکنش کار می‌کند', 'clickpop-core' ),
+						count( $bad_engine )
+					)
+				) . '</strong>'
+				: esc_html__( 'InnoDB ✓', 'clickpop-core' )
+		);
+
 		if ( $last ) {
 			self::row(
 				__( 'نتیجهٔ آخرین همگام‌سازی', 'clickpop-core' ),
