@@ -19,3 +19,37 @@
 .cp-admin .cp-pill--bad{background:#fceae8;color:#a3170f}
 .cp-admin .cp-neg{color:#a3170f;font-weight:700}
 .cp-admin .cp-adjust{max-width:760px}
+
+/* ── نمای دو ستونهٔ تیکت و سفارش ── */
+.cp-admin .cp-thread-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start;margin-top:16px}
+@media(max-width:1100px){.cp-admin .cp-thread-wrap{grid-template-columns:1fr}}
+
+.cp-admin .cp-box{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.cp-admin .cp-box h2{margin:0 0 10px;font-size:14px}
+.cp-admin .cp-kv{width:100%;border-collapse:collapse}
+.cp-admin .cp-kv th{width:170px;text-align:right;padding:6px 0;font-weight:600;color:#50575e;vertical-align:top}
+.cp-admin .cp-kv td{padding:6px 0;word-break:break-word}
+
+.cp-admin .cp-msg{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.cp-admin .cp-msg--staff{border-right:4px solid #0040b7;background:#f6f9ff}
+.cp-admin .cp-msg--user{border-right:4px solid #dcdcde}
+.cp-admin .cp-msg--note{border-right:4px solid #dba617;background:#fcf9e8}
+.cp-admin .cp-msg__h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#646970;margin-bottom:8px}
+.cp-admin .cp-msg__h strong{color:#1d2327;font-size:13px}
+.cp-admin .cp-msg__badge{font-style:normal;background:#dba617;color:#3a2a0c;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.cp-admin .cp-msg__b{line-height:1.9;word-break:break-word}
+
+.cp-admin .cp-reply{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;margin-top:16px}
+.cp-admin .cp-reply textarea{width:100%;margin-top:6px}
+.cp-admin .cp-canned{margin:10px 0}
+.cp-admin .cp-canned summary{cursor:pointer;font-weight:600;color:#0040b7}
+.cp-admin .cp-canned ul{margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
+
+/* ── ویرایشگر محتوا ── */
+.cp-admin .cp-sec{
+  margin:26px 0 8px;padding-bottom:8px;border-bottom:2px solid #dcdcde;font-size:16px;
+}
+.cp-admin .cp-repeater{margin-bottom:6px}
+.cp-admin .cp-repeater td{vertical-align:top}
+.cp-admin .cp-repeater textarea{min-height:64px}
+.cp-content-editor .form-table th{width:220px}

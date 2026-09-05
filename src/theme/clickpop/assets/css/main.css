@@ -183,7 +183,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .cp-menu__link:hover{background:var(--cp-color-bg-sub);color:var(--cp-color-text);text-decoration:none}
 .cp-menu__item.current-menu-item>.cp-menu__link{color:var(--cp-color-link);font-weight:700}
 
-.cp-burger{display:none}
+/* ویژگی بالاتر از .cp-iconbtn لازم است: آن قاعده بعداً در فایل می‌آید
+   و با ویژگی برابر، display:grid را برمی‌گرداند. */
+.cp-topbar .cp-burger{display:none}
 .cp-burger span,
 .cp-burger span::before,
 .cp-burger span::after{
@@ -199,7 +201,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 @media(max-width:880px){
   .cp-topbar .cp-nav{display:none}
-  .cp-burger{display:grid}
+  .cp-topbar .cp-burger{display:grid}
   .cp-mobilenav{display:block}
   .cp-mobilenav[hidden]{display:none}
 }
@@ -356,6 +358,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   font-size:.8125rem;color:var(--cp-color-text-3);
 }
 
+.cp-footer__contact{display:flex;flex-direction:column;gap:var(--cp-s-2);font-size:.875rem;color:var(--cp-color-text-2)}
+.cp-footer__ck{color:var(--cp-color-text-3)}
+.cp-socials{display:flex;gap:var(--cp-s-2);margin-block-start:var(--cp-s-4)}
+.cp-socials a{
+  display:grid;place-items:center;width:38px;height:38px;border-radius:var(--cp-r-md);
+  border:1px solid var(--cp-color-line);background:var(--cp-color-surface);color:var(--cp-color-text-2);
+  transition:color var(--cp-dur),border-color var(--cp-dur);
+}
+.cp-socials a:hover{color:var(--cp-color-link);border-color:var(--cp-color-link)}
+.cp-socials .cp-bico{width:18px;height:18px}
+
 /* ═══ ۱۳. صفحه‌بندی ════════════════════════════════════════ */
 .pagination{display:flex;gap:var(--cp-s-2);justify-content:center;margin-block-start:var(--cp-s-6);flex-wrap:wrap}
 .pagination .page-numbers{
@@ -364,6 +377,66 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   background:var(--cp-color-surface);color:var(--cp-color-text-2);font-weight:600;
 }
 .pagination .page-numbers.current{background:var(--cp-color-brand);color:var(--cp-color-on-brand);border-color:transparent}
+
+/* ═══ ۱۵. بخش‌های صفحهٔ اصلی ════════════════════════════════ */
+.cp-section--alt{background:var(--cp-color-bg-sub);border-block:1px solid var(--cp-color-line)}
+.cp-sechead{max-width:44rem;margin-block-end:var(--cp-s-6)}
+.cp-sechead__p{color:var(--cp-color-text-2);font-size:1.0625rem;margin-block-start:var(--cp-s-3)}
+.cp-section__more{margin-block-start:var(--cp-s-6)}
+
+.cp-brandstrip{background:var(--cp-color-bg-sub);border-block:1px solid var(--cp-color-line);padding-block:var(--cp-s-4)}
+.cp-brandstrip__in{display:flex;flex-wrap:wrap;gap:var(--cp-s-2);justify-content:center}
+.cp-brandchip{
+  display:inline-flex;align-items:center;gap:var(--cp-s-2);
+  padding:8px 15px;border-radius:999px;
+  background:var(--cp-color-surface);border:1px solid var(--cp-color-line);
+  font-size:.875rem;font-weight:600;color:var(--cp-color-text-2);
+}
+.cp-bico{width:17px;height:17px;flex-shrink:0}
+
+.cp-card--brand{align-items:flex-start}
+.cp-card__ico{
+  display:grid;place-items:center;width:42px;height:42px;border-radius:var(--cp-r-md);
+  background:var(--cp-color-info-bg);color:var(--cp-color-link);
+}
+.cp-card__ico .cp-bico{width:21px;height:21px}
+
+.cp-cta{
+  position:relative;overflow:hidden;text-align:center;
+  padding:clamp(2rem,4vw,3.5rem);border-radius:var(--cp-r-xl);
+  background:linear-gradient(135deg,#0B44D6,#00318A);color:#fff;
+}
+.cp-cta::after{
+  content:'';position:absolute;inset-block-start:-90px;inset-inline-start:-60px;
+  width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,122,26,.38),transparent 62%);
+  filter:blur(14px);pointer-events:none;
+}
+.cp-cta__t{position:relative;z-index:1;font-size:clamp(1.4rem,1.1rem + 1.4vw,2.1rem);color:#fff}
+.cp-cta__p{position:relative;z-index:1;color:#C6D8FF;margin-block:var(--cp-s-3) var(--cp-s-5);font-size:1.0625rem}
+.cp-cta .cp-btn{position:relative;z-index:1}
+
+/* ═══ ۱۶. کاتالوگ سرویس‌ها ═════════════════════════════════ */
+.cp-catalog{margin-block-start:var(--cp-s-7)}
+.cp-catalog__t{display:flex;align-items:center;gap:var(--cp-s-2);font-size:1.4rem;margin-block-end:var(--cp-s-4)}
+.cp-catalog__t .cp-bico{width:24px;height:24px;color:var(--cp-color-link)}
+.cp-catalog__c{font-size:1rem;color:var(--cp-color-text-2);margin-block:var(--cp-s-5) var(--cp-s-2)}
+
+.cp-tablewrap{overflow-x:auto;border:1px solid var(--cp-color-line);border-radius:var(--cp-r-lg);background:var(--cp-color-surface)}
+.cp-ptable{width:100%;border-collapse:collapse;font-size:.875rem}
+.cp-ptable th{
+  text-align:start;font-size:.75rem;font-weight:700;color:var(--cp-color-text-3);
+  padding:11px 16px;background:var(--cp-color-surface-2);
+  border-block-end:1px solid var(--cp-color-line);white-space:nowrap;
+}
+.cp-ptable td{padding:12px 16px;border-block-end:1px solid var(--cp-color-line);color:var(--cp-color-text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.cp-ptable tbody tr:last-child td{border-block-end:0}
+.cp-ptable__n{color:var(--cp-color-text);font-weight:600;white-space:normal;min-width:220px}
+.cp-tag{
+  display:inline-block;padding:3px 9px;border-radius:var(--cp-r-sm);margin-inline-end:4px;
+  font-size:.6875rem;font-weight:600;background:var(--cp-color-bg-sub);color:var(--cp-color-text-3);
+}
+.cp-tag--on{background:var(--cp-color-ok-bg);color:var(--cp-color-ok)}
 
 /* ═══ ۱۴. احترام به تنظیمات کاربر ══════════════════════════ */
 @media (prefers-reduced-motion: reduce){

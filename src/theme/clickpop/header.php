@@ -2,7 +2,6 @@
 /**
  * سربرگ سایت.
  *
- * اگر المنتور پرو هدر سفارشی داشته باشد، همان رندر می‌شود.
  *
  * @package ClickPop
  */
@@ -22,16 +21,7 @@ defined( 'ABSPATH' ) || exit;
 
 <?php clickpop_skip_link(); ?>
 
-<?php
-$clickpop_header_done = false;
-
-if ( clickpop_elementor_active() && function_exists( 'elementor_theme_do_location' ) ) {
-	$clickpop_header_done = elementor_theme_do_location( 'header' );
-}
-
-if ( ! $clickpop_header_done ) :
-	?>
-	<header class="cp-topbar" role="banner">
+<header class="cp-topbar" role="banner">
 		<div class="cp-wrap cp-topbar__in">
 			<?php clickpop_logo(); ?>
 
@@ -67,10 +57,9 @@ if ( ! $clickpop_header_done ) :
 			</div>
 		</div>
 
-		<div class="cp-mobilenav" id="cp-mobile-nav" hidden>
-			<?php clickpop_primary_menu(); ?>
-		</div>
-	</header>
-<?php endif; ?>
+	<div class="cp-mobilenav" id="cp-mobile-nav" hidden>
+		<?php clickpop_primary_menu(); ?>
+	</div>
+</header>
 
 <main class="cp-site-main" id="cp-main">

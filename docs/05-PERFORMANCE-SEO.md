@@ -25,7 +25,7 @@
 
 **تصویر** — AVIF با fallback به WebP، `<picture>` + `srcset`، همیشه `width`/`height` صریح، `loading="lazy"` روی همه به‌جز LCP، `fetchpriority="high"` روی تصویر Hero.
 
-**المنتور** — فعال‌سازی «Improved CSS Loading»، «Optimized DOM Output»، «Inline Font Icons»؛ dequeue کردن `font-awesome`, `eicons`, `elementor-animations` وقتی استفاده نشده؛ حذف `elementor-post-{id}.css` برای صفحات بدون محتوای المنتور.
+**بدون صفحه‌ساز** — صفحه‌ها قالب PHP‌اند. این تنها راه رسیدن به بودجهٔ بالا بود: صفحه‌سازها به‌ازای هر صفحه چند ده کیلوبایت CSS/JS اضافه و DOM چندلایه تولید می‌کنند که مستقیم روی LCP و INP می‌نشیند.
 
 **دیتابیس** — ایندکس‌های ترکیبی سند اسکیما؛ بدون `SELECT *` در مسیر داغ؛ صفحه‌بندی keyset (`WHERE id < ?`) به‌جای `OFFSET` بزرگ در تاریخچهٔ سفارش؛ شمارش کل به‌صورت کش‌شده و تقریبی در صفحات عمیق.
 

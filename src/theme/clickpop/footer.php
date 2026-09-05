@@ -9,22 +9,37 @@ defined( 'ABSPATH' ) || exit;
 ?>
 </main>
 
-<?php
-$clickpop_footer_done = false;
-
-if ( clickpop_elementor_active() && function_exists( 'elementor_theme_do_location' ) ) {
-	$clickpop_footer_done = elementor_theme_do_location( 'footer' );
-}
-
-if ( ! $clickpop_footer_done ) :
-	?>
-	<footer class="cp-footer" role="contentinfo">
+<footer class="cp-footer" role="contentinfo">
 		<div class="cp-wrap">
 			<div class="cp-footer__grid">
 				<div>
 					<?php clickpop_logo(); ?>
 					<p class="cp-footer__about"><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>
+					<?php clickpop_social_links(); ?>
 				</div>
+
+				<?php
+				$clickpop_contact = array_filter(
+					[
+						__( 'تلفن', 'clickpop' )  => (string) clickpop_content( 'contact_phone', '' ),
+						__( 'ایمیل', 'clickpop' ) => (string) clickpop_content( 'contact_email', '' ),
+						__( 'نشانی', 'clickpop' ) => (string) clickpop_content( 'contact_address', '' ),
+					]
+				);
+				?>
+				<?php if ( $clickpop_contact ) : ?>
+					<div>
+						<h4 class="cp-fwidget__t"><?php esc_html_e( 'تماس با ما', 'clickpop' ); ?></h4>
+						<ul class="cp-footer__contact">
+							<?php foreach ( $clickpop_contact as $clickpop_label => $clickpop_value ) : ?>
+								<li>
+									<span class="cp-footer__ck"><?php echo esc_html( $clickpop_label ); ?>:</span>
+									<span><?php echo esc_html( $clickpop_value ); ?></span>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
 
 				<?php if ( is_active_sidebar( 'footer-1' ) ) : ?>
 					<?php dynamic_sidebar( 'footer-1' ); ?>
@@ -74,9 +89,8 @@ if ( ! $clickpop_footer_done ) :
 					?>
 				<?php endif; ?>
 			</div>
-		</div>
-	</footer>
-<?php endif; ?>
+	</div>
+</footer>
 
 <?php wp_footer(); ?>
 </body>

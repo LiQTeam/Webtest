@@ -36,7 +36,7 @@ add_action(
 			]
 		);
 
-		// عرض محتوا برای المنتور و ادیتور بلوک.
+		// عرض محتوا برای ادیتور بلوک و قالب‌های تم.
 		if ( ! isset( $GLOBALS['content_width'] ) ) {
 			$GLOBALS['content_width'] = 1180;
 		}

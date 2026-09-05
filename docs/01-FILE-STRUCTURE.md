@@ -39,11 +39,7 @@ clickpop/
 │   ├── customizer.php               بازنویسی توکن‌های برند (رنگ اصلی، شعاع، شدت شیشه)
 │   ├── template-tags.php
 │   ├── nav-walker.php               منوی معنایی و قابل‌دسترس (aria-current, aria-expanded)
-│   ├── elementor/
-│   │   ├── bootstrap.php            گارد did_action('elementor/loaded')
-│   │   ├── locations.php            header · footer · single · archive
-│   │   ├── category.php             دستهٔ ویجت «ClickPop»
-│   │   └── dynamic-tags.php         تگ‌های پویا (موجودی، نام کاربر، تعداد سفارش)
+│   ├── content.php                  متن‌های صفحهٔ اصلی از پنل «محتوای سایت»
 │   ├── seo/
 │   │   ├── schema.php               سازندهٔ @graph (Organization · WebSite · …)
 │   │   ├── meta.php                 OG/Twitter — در حضور Rank Math/Yoast خودکار خاموش
@@ -55,18 +51,6 @@ clickpop/
 │   │   └── cleanup.php              حذف emoji · oEmbed · generator · XML-RPC
 │   └── security/headers.php         CSP (nonce-based) · HSTS · X-Frame · Permissions-Policy
 │
-├── widgets/                         ویجت‌های المنتور تم (ارائه‌ای — بدون منطق تجاری)
-│   ├── class-cp-widget-base.php     پایه: کنترل‌های مشترک، رندر امن، escape
-│   ├── hero.php                     Hero + CTA + آمار زنده
-│   ├── service-grid.php             شبکهٔ کارت سرویس (برند/دسته)
-│   ├── price-table.php              جدول قیمت پویا از افزونه
-│   ├── counter.php                  شمارندهٔ انیمیشنی (respects prefers-reduced-motion)
-│   ├── steps.php                    «چطور کار می‌کند» ۳ مرحله‌ای
-│   ├── testimonials.php
-│   ├── faq.php                      آکاردئون قابل‌دسترس + تغذیهٔ FAQPage schema
-│   ├── brand-marquee.php            نوار برندهای پشتیبانی‌شده (SVG inline)
-│   ├── trust-badges.php             نماد اعتماد · درگاه‌ها · پشتیبانی
-│   └── cta-banner.php
 │
 ├── template-parts/
 │   ├── header/{brand,nav,theme-toggle,lang-switcher,account-chip}.php
@@ -76,7 +60,7 @@ clickpop/
 ├── templates/                       قالب‌های صفحه
 │   ├── page-dashboard.php           میزبان shell داشبورد (بدنه از افزونه می‌آید)
 │   ├── page-services.php
-│   └── page-blank.php               بوم خالی برای المنتور
+│   └── page-services.php            فهرست کامل سرویس‌ها و قیمت‌ها
 │
 ├── single-cp_service_page.php  archive-cp_service_page.php
 ├── front-page.php  index.php  404.php  search.php  header.php  footer.php
@@ -91,7 +75,7 @@ clickpop/
 │   │   │   ├── 03-components/       _button.scss _card.scss _input.scss _badge.scss
 │   │   │   │                        _table.scss _modal.scss _tabs.scss _accordion.scss
 │   │   │   │                        _toast.scss _skeleton.scss _glass.scss
-│   │   │   ├── 04-widgets/          استایل هر ویجت المنتور
+│   │   │   ├── 04-sections/         استایل بخش‌های صفحهٔ اصلی
 │   │   │   ├── 05-pages/            _front.scss _dashboard.scss _auth.scss
 │   │   │   └── main.scss
 │   │   └── js/
@@ -113,7 +97,7 @@ clickpop/
 - هیچ فایلی در تم `$wpdb` را import نمی‌کند.
 - هیچ فایلی در تم `cp_` را به‌عنوان پیشوند جدول نمی‌شناسد.
 - هر خروجی از افزونه پیش از چاپ `esc_*` می‌شود، حتی اگر افزونه ادعا کند امن است.
-- هیچ CDN خارجی: فونت، آیکن و اسکریپت همگی self-hosted.
+- هیچ CDN خارجی و هیچ صفحه‌سازی: فونت، آیکن و اسکریپت همگی self-hosted و صفحه‌ها قالب PHP‌اند.
 
 ---
 
@@ -246,8 +230,7 @@ clickpop-core/
 │   ├── Frontend/
 │   │   ├── Shortcodes.php           [clickpop_dashboard] [clickpop_order_form] …
 │   │   ├── DashboardRenderer.php    رندر shell · بارگذاری شرطی asset
-│   │   ├── Elementor/               ویجت‌های تراکنشی (فرم سفارش، کیف پول، تیکت)
-│   │   └── Rewrites.php             /dashboard/{orders,wallet,tickets,profile}
+│   │   │   └── Rewrites.php             /dashboard/{orders,wallet,tickets,profile}
 │   │
 │   ├── Api/Facade.php               قرارداد پایدار برای مصرف تم
 │   └── Cli/Commands.php

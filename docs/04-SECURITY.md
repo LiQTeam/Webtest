@@ -68,7 +68,7 @@ define( 'CLICKPOP_ENCRYPTION_KEY', '<32 بایت base64>' );
 
 ```
 Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{RANDOM}';
-  style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';
+  style-src 'self'; img-src 'self' data:; font-src 'self';
   connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://*.zarinpal.com
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 X-Content-Type-Options: nosniff
@@ -76,7 +76,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
 X-Frame-Options: DENY
 ```
-> `style-src 'unsafe-inline'` تنها به‌خاطر المنتور لازم است؛ در فاز F8 با هش‌کردن استایل‌های inline حذف می‌شود. CSP ابتدا در حالت `Report-Only` مستقر می‌شود.
+> با حذف صفحه‌ساز، `style-src 'unsafe-inline'` دیگر لازم نیست و می‌تواند از CSP حذف شود. CSP ابتدا در حالت `Report-Only` مستقر می‌شود.
 
 ## ۵. آپلود پیوست تیکت
 

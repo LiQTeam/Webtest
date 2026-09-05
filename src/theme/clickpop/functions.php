@@ -5,6 +5,9 @@
  * این فایل عمداً فقط bootstrap است: هیچ منطقی اینجا نوشته نمی‌شود.
  * تم هیچ منطق تجاری، هیچ SQL و هیچ تماس API ندارد — آن‌ها کار افزونهٔ ClickPop Core است.
  *
+ * تم مستقل است و به هیچ صفحه‌سازی وابسته نیست: صفحه‌ها با قالب PHP رندر می‌شوند و
+ * متن‌هایشان از پنل «کلیک‌پاپ ← محتوای سایت» می‌آید.
+ *
  * @package ClickPop
  */
 
@@ -20,9 +23,9 @@ $clickpop_modules = [
 	'inc/setup.php',
 	'inc/assets.php',
 	'inc/theme-mode.php',
+	'inc/content.php',
 	'inc/template-tags.php',
 	'inc/nav-walker.php',
-	'inc/elementor.php',
 	'inc/seo/schema.php',
 	'inc/seo/meta.php',
 	'inc/perf/cleanup.php',

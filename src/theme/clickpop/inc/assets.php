@@ -47,8 +47,9 @@ add_action(
 
 		wp_script_add_data( 'clickpop-main', 'strategy', 'defer' );
 
-		// jQuery در فرانت لازم نیست مگر افزونه‌ای صراحتاً وابسته باشد.
-		if ( ! is_admin() && ! is_customize_preview() && ! wp_script_is( 'elementor-frontend', 'enqueued' ) ) {
+		// این تم اصلاً jQuery نمی‌خواهد؛ فقط لایهٔ سازگاری قدیمی حذف می‌شود
+		// تا افزونه‌های ثالثی که به خود jQuery وابسته‌اند نشکنند.
+		if ( ! is_admin() && ! is_customize_preview() ) {
 			wp_dequeue_script( 'jquery-migrate' );
 		}
 	},

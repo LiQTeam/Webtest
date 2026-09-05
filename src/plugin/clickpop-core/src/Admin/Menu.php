@@ -15,6 +15,11 @@ final class Menu {
 		add_action( 'admin_post_clickpop_save_settings', [ SettingsPage::class, 'handleSave' ] );
 		add_action( 'admin_post_clickpop_sync_services', [ SettingsPage::class, 'handleSync' ] );
 		add_action( 'admin_post_clickpop_adjust_balance', [ WalletPage::class, 'handleAdjust' ] );
+		add_action( 'admin_post_clickpop_ticket_reply', [ TicketsPage::class, 'handleReply' ] );
+		add_action( 'admin_post_clickpop_ticket_update', [ TicketsPage::class, 'handleUpdate' ] );
+
+		OrderActions::register();
+		ContentPage::register();
 	}
 
 	public static function build(): void {
@@ -57,6 +62,24 @@ final class Menu {
 
 		add_submenu_page(
 			self::SLUG,
+			__( 'تیکت‌ها', 'clickpop-core' ),
+			self::ticketsLabel(),
+			'clickpop_manage_tickets',
+			self::SLUG . '-tickets',
+			[ TicketsPage::class, 'render' ]
+		);
+
+		add_submenu_page(
+			self::SLUG,
+			__( 'محتوای سایت', 'clickpop-core' ),
+			__( 'محتوای سایت', 'clickpop-core' ),
+			'clickpop_manage_pricing',
+			self::SLUG . '-content',
+			[ ContentPage::class, 'render' ]
+		);
+
+		add_submenu_page(
+			self::SLUG,
 			__( 'کیف پول کاربران', 'clickpop-core' ),
 			__( 'کیف پول کاربران', 'clickpop-core' ),
 			'clickpop_adjust_balance',
@@ -74,6 +97,26 @@ final class Menu {
 		);
 	}
 
+	/** برچسب منوی تیکت با شمارندهٔ تیکت‌های باز. */
+	private static function ticketsLabel(): string {
+		global $wpdb;
+
+		$table = \ClickPop\Core\Database\Installer::table( 'tickets' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$open = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status IN ('open','pending_user')" );
+
+		if ( $open < 1 ) {
+			return __( 'تیکت‌ها', 'clickpop-core' );
+		}
+
+		return sprintf(
+			'%s <span class="awaiting-mod"><span class="pending-count">%s</span></span>',
+			__( 'تیکت‌ها', 'clickpop-core' ),
+			esc_html( number_format_i18n( $open ) )
+		);
+	}
+
 	public static function assets( string $hook ): void {
 		if ( ! str_contains( $hook, self::SLUG ) ) {
 			return;
@@ -86,6 +129,16 @@ final class Menu {
 			CLICKPOP_URL . 'assets/css/admin.css',
 			[],
 			is_readable( $css ) ? (string) filemtime( $css ) : CLICKPOP_VERSION
+		);
+
+		$js = CLICKPOP_DIR . 'assets/js/admin.js';
+
+		wp_enqueue_script(
+			'clickpop-admin',
+			CLICKPOP_URL . 'assets/js/admin.js',
+			[],
+			is_readable( $js ) ? (string) filemtime( $js ) : CLICKPOP_VERSION,
+			true
 		);
 	}
 }

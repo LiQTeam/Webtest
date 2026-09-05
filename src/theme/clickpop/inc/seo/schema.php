@@ -64,9 +64,9 @@ function clickpop_schema_core(): array {
 
 	$social = array_filter(
 		[
-			(string) get_theme_mod( 'clickpop_social_instagram', '' ),
-			(string) get_theme_mod( 'clickpop_social_telegram', '' ),
-			(string) get_theme_mod( 'clickpop_social_x', '' ),
+			(string) clickpop_content( 'social_instagram', '' ),
+			(string) clickpop_content( 'social_telegram', '' ),
+			(string) clickpop_content( 'social_x', '' ),
 		]
 	);
 
