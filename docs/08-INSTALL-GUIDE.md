@@ -79,12 +79,29 @@ wp plugin install clickpop-core.zip --activate
 ```
 
 **معیار پذیرش:** در پیشخوان منوی جدید **کلیک‌پاپ** با آیکن نمودار دیده می‌شود.
-فعال‌سازی افزونه ۱۱ جدول با پیشوند `wp_cp_` می‌سازد:
+
+### پیشوند جدول
+
+افزونه پیشوند را از `$wpdb->prefix` می‌خواند، یعنی **هر پیشوندی که در `wp-config.php` تنظیم کرده‌اید**.
+نام جدول = `{پیشوند شما}` + `cp_` + نام.
+
+| پیشوند شما | نام جداول ساخته‌شده |
+|---|---|
+| `wp_` | `wp_cp_orders`, `wp_cp_wallets`, … |
+| `click_` | `click_cp_orders`, `click_cp_wallets`, … |
+
+بررسی (پیشوند خودتان را بگذارید):
 
 ```sql
-SHOW TABLES LIKE 'wp_cp_%';
+SHOW TABLES LIKE 'click_cp_%';
 -- باید ۱۱ ردیف برگردد
 ```
+
+فهرست کامل ۱۱ جدول:
+`cp_providers` · `cp_categories` · `cp_services` · `cp_pricing_rules` · `cp_wallets` ·
+`cp_transactions` · `cp_orders` · `cp_tickets` · `cp_ticket_messages` · `cp_audit_log` · `cp_api_log`
+
+> هیچ نام جدولی در کد سخت‌کد نشده است. تغییر پیشوند بعد از نصب پشتیبانی نمی‌شود (مثل خود وردپرس) — پیشوند را قبل از فعال‌سازی نهایی کنید.
 
 ---
 
@@ -120,7 +137,7 @@ SHOW TABLES LIKE 'wp_cp_%';
 
 فرمول: `قیمت فروش = ceil( (قیمت تمام‌شده + سود) / گام ) × گام`
 
-قاعده‌های دقیق‌تر (هر برند، هر دسته، هر سرویس) در جدول `wp_cp_pricing_rules` با اولویت `service > category > brand > global` قابل درج‌اند.
+قاعده‌های دقیق‌تر (هر برند، هر دسته، هر سرویس) در جدول `{پیشوند}cp_pricing_rules` با اولویت `service > category > brand > global` قابل درج‌اند.
 
 **معیار پذیرش:** بعد از تغییر درصد سود و اجرای دوبارهٔ همگام‌سازی، ستون «قیمت فروش» تغییر کرده باشد.
 
@@ -244,8 +261,8 @@ wp cron event list | grep clickpop
 # Redis برای object cache
 wp plugin install redis-cache --activate && wp redis enable
 
-# ایندکس‌ها را بررسی کنید
-wp db query "SHOW INDEX FROM wp_cp_orders"
+# ایندکس‌ها را بررسی کنید (پیشوند خودتان را بگذارید)
+wp db query "SHOW INDEX FROM click_cp_orders"
 ```
 
 روی Nginx، بایپس کش برای کاربران واردشده:
@@ -272,7 +289,7 @@ location ~ ^/clickpop-payment/ { set $skip_cache 1; }
 | هشدار کلید رمزنگاری در پیشخوان | `CLICKPOP_ENCRYPTION_KEY` تعریف نشده | مرحلهٔ ۱ |
 | سرویس با وضعیت `review` | قیمت سرویس‌دهنده بیش از آستانه پریده | قیمت را بررسی و در دیتابیس وضعیت را به `active` برگردانید |
 
-لاگ فراخوان‌های API در جدول `wp_cp_api_log` است (بدون کلید API و بدون لینک کاربر). گزارش ممیزی اعمال حساس در `wp_cp_audit_log`.
+لاگ فراخوان‌های API در جدول `{پیشوند}cp_api_log` است (بدون کلید API و بدون لینک کاربر). گزارش ممیزی اعمال حساس در `{پیشوند}cp_audit_log`.
 
 ---
 
