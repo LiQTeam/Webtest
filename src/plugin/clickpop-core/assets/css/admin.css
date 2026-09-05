@@ -1,55 +1,228 @@
-/* ClickPop — استایل پنل مدیریت */
+/*
+ * ClickPop — پنل مدیریت
+ * پالت هم‌راستا با برند، ولی سازگار با ظاهر پیشخوان وردپرس.
+ */
+.cp-admin{
+  --cp-b:#1668FF; --cp-b-d:#0040B7; --cp-b-l:#E6EEFD;
+  --cp-a:#FF7A1A; --cp-a-d:#B94E00; --cp-a-l:#FDF1DE;
+  --cp-ink:#0A1C3D; --cp-mut:#5A6B87; --cp-line:#DCE3EF;
+  --cp-ok:#0F5F33; --cp-ok-l:#E4F6EC;
+  --cp-bad:#A3170F; --cp-bad-l:#FCEAE8;
+  --cp-warn:#7A4800; --cp-warn-l:#FDF1DE;
+  --cp-r:10px;
+}
+.cp-admin h1{color:var(--cp-ink)}
+.cp-admin .cp-muted{color:var(--cp-mut)}
+
+/* ── کارت شاخص ── */
 .cp-admin .cp-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
-  gap:12px;margin:18px 0 26px;
+  gap:12px;margin:18px 0 24px;
 }
 .cp-admin .cp-card{
-  background:#fff;border:1px solid #dcdcde;border-radius:10px;padding:14px 16px;
+  position:relative;background:#fff;border:1px solid var(--cp-line);
+  border-radius:var(--cp-r);padding:14px 16px;
 }
-.cp-admin .cp-card.warn{border-color:#dba617;background:#fcf9e8}
-.cp-admin .cp-card__l{display:block;font-size:12px;color:#646970}
-.cp-admin .cp-card__v{display:block;font-size:20px;font-weight:700;margin-top:4px;color:#1d2327}
-.cp-admin .cp-table th{width:240px}
-.cp-admin .cp-pill{
-  display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;
+.cp-admin .cp-card.warn{border-color:#dba617;background:#fffaf0}
+.cp-admin .cp-card.wallet{background:linear-gradient(135deg,#0B44D6,#00318A);border-color:transparent}
+.cp-admin .cp-card.wallet .cp-card__l{color:#B8D1FF}
+.cp-admin .cp-card.wallet .cp-card__v{color:#fff}
+.cp-admin .cp-card__l{display:block;font-size:12px;color:var(--cp-mut)}
+.cp-admin .cp-card__v{display:block;font-size:20px;font-weight:700;margin-top:4px;color:var(--cp-ink)}
+.cp-admin .cp-delta{
+  position:absolute;inset-block-start:12px;inset-inline-start:14px;
+  font-size:11px;font-weight:700;padding:2px 7px;border-radius:99px;
 }
-.cp-admin .cp-pill--ok{background:#e4f6ec;color:#0f5f33}
-.cp-admin .cp-pill--run{background:#e6eefd;color:#0040b7}
-.cp-admin .cp-pill--wait,.cp-admin .cp-pill--part,.cp-admin .cp-pill--warn{background:#fdf1de;color:#7a4800}
-.cp-admin .cp-pill--bad{background:#fceae8;color:#a3170f}
-.cp-admin .cp-neg{color:#a3170f;font-weight:700}
-.cp-admin .cp-adjust{max-width:760px}
+.cp-admin .cp-delta--up{background:var(--cp-ok-l);color:var(--cp-ok)}
+.cp-admin .cp-delta--down{background:var(--cp-bad-l);color:var(--cp-bad)}
 
-/* ── نمای دو ستونهٔ تیکت و سفارش ── */
-.cp-admin .cp-thread-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start;margin-top:16px}
-@media(max-width:1100px){.cp-admin .cp-thread-wrap{grid-template-columns:1fr}}
+/* ── جعبهٔ پنل ── */
+.cp-admin .cp-panelbox{
+  background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-r);
+  margin-bottom:22px;overflow:hidden;
+}
+.cp-admin .cp-panelbox.is-blocked{border-color:#d63638}
+.cp-admin .cp-panelbox__h{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 16px;border-bottom:1px solid var(--cp-line);background:#f8fafd;
+}
+.cp-admin .cp-panelbox__h h2{margin:0;font-size:14px}
 
-.cp-admin .cp-box{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;margin-bottom:16px}
-.cp-admin .cp-box h2{margin:0 0 10px;font-size:14px}
+/* ── چک‌لیست ── */
+.cp-admin .cp-check{margin:0;padding:0;list-style:none}
+.cp-admin .cp-check__row{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  border-bottom:1px solid #f0f2f6;
+}
+.cp-admin .cp-check__row:last-child{border-bottom:0}
+.cp-admin .cp-check__dot{
+  width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--cp-mut);
+}
+.cp-admin .cp-check__row--ok .cp-check__dot{background:#00a32a}
+.cp-admin .cp-check__row--warn .cp-check__dot{background:#dba617}
+.cp-admin .cp-check__row--bad .cp-check__dot{background:#d63638}
+.cp-admin .cp-check__body{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cp-admin .cp-check__body strong{color:var(--cp-ink)}
+.cp-admin .cp-check__body span{font-size:12px;color:var(--cp-mut)}
+
+/* ── نمودار ── */
+.cp-admin .cp-chart{
+  display:flex;align-items:flex-end;gap:6px;padding:20px 16px 12px;height:180px;
+}
+.cp-admin .cp-chart__col{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  height:100%;gap:4px;cursor:default;
+}
+.cp-admin .cp-chart__bar{
+  width:100%;max-width:34px;border-radius:6px 6px 0 0;
+  background:linear-gradient(180deg,#528FFF,#0040B7);transition:opacity .15s;
+}
+.cp-admin .cp-chart__col:hover .cp-chart__bar{opacity:.75}
+.cp-admin .cp-chart__n{font-size:11px;font-weight:700;color:var(--cp-ink)}
+.cp-admin .cp-chart__d{font-size:10px;color:var(--cp-mut);white-space:nowrap}
+
+/* ── نوار ابزار و گروهی ── */
+.cp-admin .cp-toolbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0;
+  padding:12px 14px;background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-r);
+}
+.cp-admin .cp-toolbar__form{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0}
+.cp-admin .cp-toolbar__form label{font-size:12px;color:var(--cp-mut)}
+.cp-admin .cp-bulkbar{display:flex;gap:8px;margin:10px 0}
+.cp-admin .cp-summary{
+  margin:0 0 12px;padding:10px 14px;background:var(--cp-b-l);
+  border-radius:var(--cp-r);color:var(--cp-b-d);font-weight:600;
+}
+
+/* ── نشان‌ها ── */
+.cp-admin .cp-pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.cp-admin .cp-pill--ok{background:var(--cp-ok-l);color:var(--cp-ok)}
+.cp-admin .cp-pill--run{background:var(--cp-b-l);color:var(--cp-b-d)}
+.cp-admin .cp-pill--wait,.cp-admin .cp-pill--part,.cp-admin .cp-pill--warn{background:var(--cp-warn-l);color:var(--cp-warn)}
+.cp-admin .cp-pill--bad{background:var(--cp-bad-l);color:var(--cp-bad)}
+.cp-admin .cp-neg{color:var(--cp-bad);font-weight:700}
+
+/* ── نمای دو ستونه ── */
+.cp-admin .cp-thread-wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start;margin-top:16px}
+@media(max-width:1200px){.cp-admin .cp-thread-wrap{grid-template-columns:1fr}}
+.cp-admin .cp-box{background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-r);padding:14px 16px;margin-bottom:16px}
+.cp-admin .cp-box h2{margin:0 0 10px;font-size:14px;color:var(--cp-ink)}
 .cp-admin .cp-kv{width:100%;border-collapse:collapse}
-.cp-admin .cp-kv th{width:170px;text-align:right;padding:6px 0;font-weight:600;color:#50575e;vertical-align:top}
+.cp-admin .cp-kv th{width:170px;text-align:right;padding:6px 0;font-weight:600;color:var(--cp-mut);vertical-align:top}
 .cp-admin .cp-kv td{padding:6px 0;word-break:break-word}
+.cp-admin .cp-linklist{margin:0;padding:0;list-style:none}
+.cp-admin .cp-linklist li{padding:8px 0;border-bottom:1px solid #f0f2f6}
+.cp-admin .cp-linklist li:last-child{border-bottom:0}
 
-.cp-admin .cp-msg{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:12px 14px;margin-bottom:10px}
-.cp-admin .cp-msg--staff{border-right:4px solid #0040b7;background:#f6f9ff}
-.cp-admin .cp-msg--user{border-right:4px solid #dcdcde}
+/* ── تیکت ── */
+.cp-admin .cp-msg{background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-r);padding:12px 14px;margin-bottom:10px}
+.cp-admin .cp-msg--staff{border-right:4px solid var(--cp-b-d);background:#f6f9ff}
+.cp-admin .cp-msg--user{border-right:4px solid var(--cp-line)}
 .cp-admin .cp-msg--note{border-right:4px solid #dba617;background:#fcf9e8}
-.cp-admin .cp-msg__h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#646970;margin-bottom:8px}
-.cp-admin .cp-msg__h strong{color:#1d2327;font-size:13px}
+.cp-admin .cp-msg__h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--cp-mut);margin-bottom:8px}
+.cp-admin .cp-msg__h strong{color:var(--cp-ink);font-size:13px}
 .cp-admin .cp-msg__badge{font-style:normal;background:#dba617;color:#3a2a0c;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:600}
 .cp-admin .cp-msg__b{line-height:1.9;word-break:break-word}
-
-.cp-admin .cp-reply{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:14px 16px;margin-top:16px}
+.cp-admin .cp-reply{background:#fff;border:1px solid var(--cp-line);border-radius:var(--cp-r);padding:14px 16px;margin-top:16px}
 .cp-admin .cp-reply textarea{width:100%;margin-top:6px}
 .cp-admin .cp-canned{margin:10px 0}
-.cp-admin .cp-canned summary{cursor:pointer;font-weight:600;color:#0040b7}
+.cp-admin .cp-canned summary{cursor:pointer;font-weight:600;color:var(--cp-b-d)}
 .cp-admin .cp-canned ul{margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
 
-/* ── ویرایشگر محتوا ── */
-.cp-admin .cp-sec{
-  margin:26px 0 8px;padding-bottom:8px;border-bottom:2px solid #dcdcde;font-size:16px;
+/* ══════════ ویرایشگر محتوا ══════════ */
+.cp-content-editor .cp-tabs{
+  display:flex;gap:2px;flex-wrap:wrap;margin:18px 0 0;
+  border-bottom:1px solid var(--cp-line);
 }
-.cp-admin .cp-repeater{margin-bottom:6px}
-.cp-admin .cp-repeater td{vertical-align:top}
-.cp-admin .cp-repeater textarea{min-height:64px}
-.cp-content-editor .form-table th{width:220px}
+.cp-content-editor .cp-tabs__item{
+  display:flex;align-items:center;gap:6px;
+  padding:10px 14px;text-decoration:none;color:var(--cp-mut);
+  font-weight:600;font-size:13px;border:1px solid transparent;border-bottom:0;
+  border-radius:8px 8px 0 0;margin-bottom:-1px;
+}
+.cp-content-editor .cp-tabs__item:hover{color:var(--cp-ink);background:#f2f5fa}
+.cp-content-editor .cp-tabs__item.is-active{
+  background:#fff;border-color:var(--cp-line);color:var(--cp-b-d);
+}
+.cp-content-editor .cp-tabs__item .dashicons{font-size:16px;width:16px;height:16px}
+
+.cp-content-editor .cp-intro{
+  padding:12px 16px;margin:0;background:var(--cp-b-l);color:var(--cp-b-d);
+  border:1px solid var(--cp-line);border-top:0;font-size:13px;
+}
+.cp-content-editor .cp-fields{
+  background:#fff;border:1px solid var(--cp-line);border-top:0;padding:6px 20px 20px;
+}
+.cp-content-editor .cp-field{
+  display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;
+  align-items:start;padding:16px 0;border-bottom:1px solid #f0f2f6;
+}
+.cp-content-editor .cp-field:last-child{border-bottom:0}
+@media(max-width:782px){.cp-content-editor .cp-field{grid-template-columns:1fr;gap:8px}}
+.cp-content-editor .cp-field__label{font-weight:600;color:var(--cp-ink);padding-top:6px}
+.cp-content-editor .cp-field__control input[type="text"],
+.cp-content-editor .cp-field__control input[type="email"],
+.cp-content-editor .cp-field__control textarea,
+.cp-content-editor .cp-field__control select{max-width:640px;width:100%}
+.cp-content-editor .cp-field__help{margin:6px 0 0;font-size:12px;color:var(--cp-mut)}
+.cp-content-editor .cp-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;direction:ltr;text-align:left}
+
+/* کلید روشن/خاموش */
+.cp-switch{display:inline-flex;align-items:center;cursor:pointer}
+.cp-switch input{position:absolute;opacity:0;width:0;height:0}
+.cp-switch__ui{
+  position:relative;width:44px;height:24px;border-radius:99px;background:#c3c8d1;
+  transition:background .18s;display:block;
+}
+.cp-switch__ui::after{
+  content:'';position:absolute;inset-block-start:3px;inset-inline-end:3px;
+  width:18px;height:18px;border-radius:50%;background:#fff;
+  transition:transform .18s;box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.cp-switch input:checked + .cp-switch__ui{background:#00a32a}
+.cp-switch input:checked + .cp-switch__ui::after{transform:translateX(-20px)}
+.cp-switch input:focus-visible + .cp-switch__ui{outline:2px solid var(--cp-b);outline-offset:2px}
+
+/* رنگ */
+.cp-colorwrap{display:inline-flex;align-items:center;gap:8px}
+.cp-colorwrap input[type="color"]{width:52px;height:34px;padding:2px;border:1px solid var(--cp-line);border-radius:6px;cursor:pointer}
+.cp-colorhex{width:92px;font-family:ui-monospace,monospace;font-size:12px;direction:ltr;text-align:center}
+
+/* رسانه */
+.cp-media{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cp-media__preview img{max-width:120px;height:auto;border-radius:6px;border:1px solid var(--cp-line);display:block}
+.cp-media--sm .cp-media__preview img{max-width:52px}
+
+/* ریپیتر */
+.cp-rep{grid-column:1/-1;background:#f8fafd;border:1px solid var(--cp-line);border-radius:var(--cp-r);padding:14px;margin:8px 0}
+.cp-rep__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.cp-rep__head h3{margin:0;font-size:13px;color:var(--cp-ink)}
+.cp-rep__rows{display:flex;flex-direction:column;gap:10px}
+.cp-rep__row{
+  display:flex;align-items:flex-start;gap:10px;background:#fff;
+  border:1px solid var(--cp-line);border-radius:8px;padding:10px 12px;
+}
+.cp-rep__grip{
+  width:4px;align-self:stretch;border-radius:99px;background:var(--cp-b);opacity:.35;flex-shrink:0;
+}
+.cp-rep__cols{
+  flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;min-width:0;
+}
+.cp-rep__col{display:flex;flex-direction:column;gap:4px;min-width:0}
+.cp-rep__collabel{font-size:11px;font-weight:600;color:var(--cp-mut)}
+.cp-rep__col input[type="text"],.cp-rep__col textarea,.cp-rep__col select{width:100%}
+.cp-rep__del{
+  border:0;background:#fceae8;color:var(--cp-bad);width:28px;height:28px;
+  border-radius:6px;cursor:pointer;font-size:18px;line-height:1;flex-shrink:0;
+}
+.cp-rep__del:hover{background:#f7d4d1}
+
+.cp-content-editor .cp-formbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:#fff;border:1px solid var(--cp-line);border-top:0;
+  border-radius:0 0 var(--cp-r) var(--cp-r);padding:14px 20px;
+}
+
+/* مشتریان */
+.cp-admin .cp-customers td{vertical-align:middle}
+.cp-admin .cp-adjust{max-width:760px}

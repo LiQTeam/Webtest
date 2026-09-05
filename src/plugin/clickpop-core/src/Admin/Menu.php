@@ -20,6 +20,9 @@ final class Menu {
 
 		OrderActions::register();
 		ContentPage::register();
+		CustomersPage::register();
+
+		add_action( 'admin_post_clickpop_install_pages', [ self::class, 'handleInstallPages' ] );
 	}
 
 	public static function build(): void {
@@ -62,6 +65,15 @@ final class Menu {
 
 		add_submenu_page(
 			self::SLUG,
+			__( 'مشتریان', 'clickpop-core' ),
+			__( 'مشتریان', 'clickpop-core' ),
+			'clickpop_manage_orders',
+			self::SLUG . '-customers',
+			[ CustomersPage::class, 'render' ]
+		);
+
+		add_submenu_page(
+			self::SLUG,
 			__( 'تیکت‌ها', 'clickpop-core' ),
 			self::ticketsLabel(),
 			'clickpop_manage_tickets',
@@ -71,8 +83,8 @@ final class Menu {
 
 		add_submenu_page(
 			self::SLUG,
-			__( 'محتوای سایت', 'clickpop-core' ),
-			__( 'محتوای سایت', 'clickpop-core' ),
+			__( 'محتوا و ظاهر سایت', 'clickpop-core' ),
+			__( 'محتوا و ظاهر', 'clickpop-core' ),
 			'clickpop_manage_pricing',
 			self::SLUG . '-content',
 			[ ContentPage::class, 'render' ]
@@ -95,6 +107,36 @@ final class Menu {
 			self::SLUG . '-settings',
 			[ SettingsPage::class, 'render' ]
 		);
+	}
+
+	/** ساخت خودکار صفحه‌های لازم از روی چک‌لیست. */
+	public static function handleInstallPages(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'دسترسی لازم را ندارید.', 'clickpop-core' ), '', [ 'response' => 403 ] );
+		}
+
+		check_admin_referer( 'clickpop_install_pages' );
+
+		$pages = \ClickPop\Core\Setup\PageInstaller::ensure();
+		\ClickPop\Core\Setup\PageInstaller::ensureMenu( $pages );
+		flush_rewrite_rules();
+
+		wp_safe_redirect(
+			add_query_arg(
+				[
+					'page'   => self::SLUG,
+					'cp_msg' => rawurlencode(
+						sprintf(
+							/* translators: %d: page count */
+							__( '%d صفحه بررسی و در صورت نبود ساخته شد.', 'clickpop-core' ),
+							count( $pages )
+						)
+					),
+				],
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	/** برچسب منوی تیکت با شمارندهٔ تیکت‌های باز. */
@@ -130,6 +172,11 @@ final class Menu {
 			[],
 			is_readable( $css ) ? (string) filemtime( $css ) : CLICKPOP_VERSION
 		);
+
+		// انتخابگر رسانه فقط در صفحهٔ محتوا لازم است.
+		if ( str_contains( $hook, self::SLUG . '-content' ) ) {
+			wp_enqueue_media();
+		}
 
 		$js = CLICKPOP_DIR . 'assets/js/admin.js';
 

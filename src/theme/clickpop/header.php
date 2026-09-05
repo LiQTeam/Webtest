@@ -21,7 +21,21 @@ defined( 'ABSPATH' ) || exit;
 
 <?php clickpop_skip_link(); ?>
 
-<header class="cp-topbar" role="banner">
+<?php if ( clickpop_on( 'topbar_enabled' ) && '' !== (string) clickpop_content( 'topbar_text', '' ) ) : ?>
+	<div class="cp-notice">
+		<div class="cp-wrap cp-notice__in">
+			<?php clickpop_icon( 'sparkles', 'cp-ico cp-ico--sm' ); ?>
+			<span><?php clickpop_the_content_field( 'topbar_text' ); ?></span>
+			<?php if ( '' !== (string) clickpop_content( 'topbar_link_text', '' ) ) : ?>
+				<a href="<?php echo esc_url( (string) clickpop_content( 'topbar_link_url', '#' ) ); ?>">
+					<?php clickpop_the_content_field( 'topbar_link_text' ); ?>
+				</a>
+			<?php endif; ?>
+		</div>
+	</div>
+<?php endif; ?>
+
+<header class="cp-topbar<?php echo clickpop_on( 'header_sticky' ) ? ' is-sticky' : ''; ?>" role="banner">
 		<div class="cp-wrap cp-topbar__in">
 			<?php clickpop_logo(); ?>
 
@@ -39,7 +53,7 @@ defined( 'ABSPATH' ) || exit;
 						</a>
 					<?php else : ?>
 						<a class="cp-btn cp-btn--primary cp-btn--sm" href="<?php echo esc_url( wp_login_url() ); ?>">
-							<?php esc_html_e( 'ورود / ثبت‌نام', 'clickpop' ); ?>
+							<?php clickpop_the_content_field( 'header_cta_text' ); ?>
 						</a>
 					<?php endif; ?>
 				<?php endif; ?>

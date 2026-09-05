@@ -24,6 +24,7 @@ $clickpop_modules = [
 	'inc/assets.php',
 	'inc/theme-mode.php',
 	'inc/content.php',
+	'inc/dynamic-css.php',
 	'inc/template-tags.php',
 	'inc/nav-walker.php',
 	'inc/seo/schema.php',

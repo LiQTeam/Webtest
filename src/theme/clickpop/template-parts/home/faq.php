@@ -15,9 +15,14 @@ if ( ! $cp_faq ) {
 	return;
 }
 ?>
-<section class="cp-section cp-section--alt" id="faq">
+<section class="cp-section cp-section--soft" id="faq">
 	<div class="cp-wrap">
-		<h2 class="cp-section__t"><?php clickpop_the_content_field( 'faq_title' ); ?></h2>
+		<div class="cp-sechead cp-sechead--center">
+			<h2 class="cp-section__t"><?php clickpop_the_content_field( 'faq_title' ); ?></h2>
+			<?php if ( '' !== (string) clickpop_content( 'faq_text', '' ) ) : ?>
+				<p class="cp-sechead__p"><?php clickpop_the_content_field( 'faq_text' ); ?></p>
+			<?php endif; ?>
+		</div>
 
 		<div class="cp-faq">
 			<?php foreach ( $cp_faq as $cp_i => $cp_item ) : ?>
@@ -40,4 +45,4 @@ if ( ! $cp_faq ) {
 		</div>
 	</div>
 </section>
-<?php clickpop_faq_schema( $cp_faq ); ?>
+<?php if ( clickpop_on( 'faq_schema' ) ) { clickpop_faq_schema( $cp_faq ); } ?>

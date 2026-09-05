@@ -56,6 +56,10 @@ final class OrdersPage {
 		$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$paged = isset( $_GET['paged'] ) ? max( 1, absint( wp_unslash( $_GET['paged'] ) ) ) : 1;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$from = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$to = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '';
 
 		$where  = '1=1';
 		$params = [];
@@ -63,6 +67,17 @@ final class OrdersPage {
 		if ( '' !== $status && array_key_exists( $status, OrderStatus::labels() ) ) {
 			$where   .= ' AND o.status = %s';
 			$params[] = $status;
+		}
+
+		// تاریخ فقط در قالب YYYY-MM-DD پذیرفته می‌شود؛ هر چیز دیگری نادیده گرفته می‌شود.
+		if ( 1 === preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) {
+			$where   .= ' AND o.created_at >= %s';
+			$params[] = $from . ' 00:00:00';
+		}
+
+		if ( 1 === preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) ) {
+			$where   .= ' AND o.created_at <= %s';
+			$params[] = $to . ' 23:59:59';
 		}
 
 		if ( '' !== $search ) {
@@ -78,6 +93,20 @@ final class OrdersPage {
 			$params
 				? $wpdb->prepare( "SELECT COUNT(*) FROM {$orders} o LEFT JOIN {$services} s ON s.id = o.service_id WHERE {$where}", $params )
 				: "SELECT COUNT(*) FROM {$orders} o LEFT JOIN {$services} s ON s.id = o.service_id WHERE {$where}"
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$summary = $wpdb->get_row(
+			$params
+				? $wpdb->prepare(
+					"SELECT COUNT(*) AS c, COALESCE(SUM(o.charge - o.refunded),0) AS rev,
+					        COALESCE(SUM(o.charge - o.cost - o.refunded),0) AS profit
+					 FROM {$orders} o LEFT JOIN {$services} s ON s.id = o.service_id WHERE {$where}",
+					$params
+				)
+				: "SELECT COUNT(*) AS c, COALESCE(SUM(o.charge - o.refunded),0) AS rev,
+				          COALESCE(SUM(o.charge - o.cost - o.refunded),0) AS profit
+				   FROM {$orders} o LEFT JOIN {$services} s ON s.id = o.service_id WHERE {$where}"
 		);
 
 		$page_params   = $params;
@@ -113,23 +142,84 @@ final class OrdersPage {
 		}
 		echo '</ul><br class="clear">';
 
+		/* ── نوار ابزار: جست‌وجو، بازهٔ تاریخ، خروجی CSV ── */
+		echo '<div class="cp-toolbar">';
 		printf(
-			'<form method="get"><input type="hidden" name="page" value="%s"><p class="search-box">
-				<input type="search" name="s" value="%s" placeholder="%s"><button class="button">%s</button></p></form>',
+			'<form method="get" class="cp-toolbar__form"><input type="hidden" name="page" value="%1$s"><input type="hidden" name="cp_status" value="%2$s">
+				<input type="search" name="s" value="%3$s" placeholder="%4$s">
+				<label>%5$s <input type="date" name="from" value="%6$s"></label>
+				<label>%7$s <input type="date" name="to" value="%8$s"></label>
+				<button class="button">%9$s</button></form>',
 			esc_attr( Menu::SLUG . '-orders' ),
+			esc_attr( $status ),
 			esc_attr( $search ),
 			esc_attr__( 'لینک، شناسهٔ سرویس‌دهنده یا نام سرویس', 'clickpop-core' ),
-			esc_html__( 'جست‌وجو', 'clickpop-core' )
+			esc_html__( 'از', 'clickpop-core' ),
+			esc_attr( $from ),
+			esc_html__( 'تا', 'clickpop-core' ),
+			esc_attr( $to ),
+			esc_html__( 'اعمال فیلتر', 'clickpop-core' )
 		);
+		printf(
+			'<a class="button" href="%s">%s</a>',
+			esc_url(
+				wp_nonce_url(
+					add_query_arg(
+						array_filter(
+							[
+								'action'    => 'clickpop_orders_export',
+								'cp_status' => $status,
+								'from'      => $from,
+								'to'        => $to,
+							]
+						),
+						admin_url( 'admin-post.php' )
+					),
+					'clickpop_orders_export'
+				)
+			),
+			esc_html__( 'خروجی CSV', 'clickpop-core' )
+		);
+		echo '</div>';
+
+		/* ── خلاصهٔ همین فیلتر ── */
+		if ( $summary ) {
+			printf(
+				'<p class="cp-summary">%s</p>',
+				esc_html(
+					sprintf(
+						/* translators: 1: count, 2: revenue, 3: profit */
+						__( '%1$s سفارش در این فیلتر · فروش %2$s · سود %3$s', 'clickpop-core' ),
+						number_format_i18n( (int) $summary->c ),
+						Money::fromRials( (int) $summary->rev )->format(),
+						Money::fromRials( (int) $summary->profit )->format()
+					)
+				)
+			);
+		}
+
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-cp-bulkform>';
+		wp_nonce_field( OrderActions::NONCE );
+		echo '<input type="hidden" name="action" value="clickpop_orders_bulk">';
+
+		echo '<div class="cp-bulkbar"><select name="bulk">';
+		foreach ( OrderActions::bulkActions() as $key => $label ) {
+			printf( '<option value="%s">%s</option>', esc_attr( $key ), esc_html( $label ) );
+		}
+		printf( '</select><button type="submit" class="button">%s</button></div>', esc_html__( 'اجرا', 'clickpop-core' ) );
 
 		echo '<table class="widefat striped"><thead><tr>';
+		printf(
+			'<th class="check-column"><input type="checkbox" data-cp-checkall aria-label="%s"></th>',
+			esc_attr__( 'انتخاب همه', 'clickpop-core' )
+		);
 		foreach ( [ 'شناسه', 'کاربر', 'سرویس', 'تعداد', 'مبلغ', 'سود', 'باقی‌مانده', 'وضعیت', 'تاریخ', '' ] as $heading ) {
 			printf( '<th>%s</th>', esc_html( $heading ) );
 		}
 		echo '</tr></thead><tbody>';
 
 		if ( ! $rows ) {
-			printf( '<tr><td colspan="10">%s</td></tr>', esc_html__( 'سفارشی با این فیلتر پیدا نشد.', 'clickpop-core' ) );
+			printf( '<tr><td colspan="11">%s</td></tr>', esc_html__( 'سفارشی با این فیلتر پیدا نشد.', 'clickpop-core' ) );
 		}
 
 		foreach ( (array) $rows as $row ) {
@@ -138,6 +228,17 @@ final class OrdersPage {
 			$profit = (int) $row->charge - (int) $row->cost - (int) $row->refunded;
 
 			echo '<tr>';
+			printf(
+				'<td class="check-column"><input type="checkbox" name="ids[]" value="%1$d" data-cp-rowcheck aria-label="%2$s"></td>',
+				(int) $row->id,
+				esc_attr(
+					sprintf(
+						/* translators: %d: order id */
+						__( 'انتخاب سفارش %d', 'clickpop-core' ),
+						(int) $row->id
+					)
+				)
+			);
 			printf( '<td><a href="%s"><strong>#%d</strong></a></td>', esc_url( $url ), (int) $row->id );
 			printf( '<td>%s</td>', esc_html( $user ? $user->display_name : '—' ) );
 			printf( '<td>%s</td>', esc_html( (string) ( $row->service_name ?? '—' ) ) );
@@ -159,9 +260,18 @@ final class OrdersPage {
 			echo '</tr>';
 		}
 
-		echo '</tbody></table>';
+		echo '</tbody></table></form>';
 
-		self::pagination( $total, $paged, [ 'cp_status' => $status, 's' => $search ] );
+		self::pagination(
+			$total,
+			$paged,
+			[
+				'cp_status' => $status,
+				's'         => $search,
+				'from'      => $from,
+				'to'        => $to,
+			]
+		);
 	}
 
 	private static function renderSingle( int $order_id ): void {

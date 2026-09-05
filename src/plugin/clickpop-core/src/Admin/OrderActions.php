@@ -25,6 +25,185 @@ final class OrderActions {
 
 	public static function register(): void {
 		add_action( 'admin_post_clickpop_order_action', [ self::class, 'handle' ] );
+		add_action( 'admin_post_clickpop_orders_bulk', [ self::class, 'handleBulk' ] );
+		add_action( 'admin_post_clickpop_orders_export', [ self::class, 'handleExport' ] );
+	}
+
+	/** @return array<string,string> */
+	public static function bulkActions(): array {
+		return [
+			''             => __( 'اقدام گروهی…', 'clickpop-core' ),
+			'resync'       => __( 'بررسی وضعیت از سرویس‌دهنده', 'clickpop-core' ),
+			'mark_done'    => __( 'علامت‌گذاری به‌عنوان تکمیل‌شده', 'clickpop-core' ),
+			'cancel_refund'=> __( 'لغو و بازگشت کامل وجه', 'clickpop-core' ),
+		];
+	}
+
+	/**
+	 * اعمال گروهی روی سفارش‌های انتخاب‌شده.
+	 *
+	 * «لغو و بازگشت وجه» عمداً تأییدیهٔ جداگانه در مرورگر دارد و در ممیزی
+	 * برای تک‌تک سفارش‌ها ثبت می‌شود.
+	 */
+	public static function handleBulk(): void {
+		if ( ! current_user_can( self::CAP ) ) {
+			wp_die( esc_html__( 'دسترسی لازم را ندارید.', 'clickpop-core' ), '', [ 'response' => 403 ] );
+		}
+
+		check_admin_referer( self::NONCE );
+
+		$do  = isset( $_POST['bulk'] ) ? sanitize_key( wp_unslash( $_POST['bulk'] ) ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- با absint پاک می‌شود.
+		$ids = isset( $_POST['ids'] ) ? array_map( 'absint', (array) wp_unslash( $_POST['ids'] ) ) : [];
+		$ids = array_values( array_filter( $ids ) );
+
+		if ( ! $ids || ! array_key_exists( $do, self::bulkActions() ) || '' === $do ) {
+			self::back( __( 'اقدامی انتخاب نشد.', 'clickpop-core' ) );
+		}
+
+		// سقف ایمنی: جلوگیری از تایم‌اوت و از یک اشتباه بزرگ در یک کلیک.
+		$ids = array_slice( $ids, 0, 100 );
+
+		$repo    = new OrderRepository();
+		$service = new OrderService();
+		$done    = 0;
+
+		foreach ( $ids as $id ) {
+			$order = $repo->find( $id );
+
+			if ( ! $order ) {
+				continue;
+			}
+
+			switch ( $do ) {
+				case 'resync':
+					$repo->update( $id, [ 'next_sync_at' => current_time( 'mysql', true ) ] );
+					++$done;
+					break;
+
+				case 'mark_done':
+					$repo->update(
+						$id,
+						[
+							'status'       => OrderStatus::COMPLETED,
+							'remains'      => 0,
+							'completed_at' => current_time( 'mysql', true ),
+							'next_sync_at' => null,
+						]
+					);
+					Audit::log( 'order.bulk_status', 'order', $id, [ 'status' => $order->status ], [ 'status' => OrderStatus::COMPLETED ] );
+					++$done;
+					break;
+
+				case 'cancel_refund':
+					$service->refundFull( $order, 'bulk_admin_cancel' );
+					$repo->update(
+						$id,
+						[
+							'status'       => OrderStatus::CANCELED,
+							'next_sync_at' => null,
+						]
+					);
+					Audit::log( 'order.bulk_refund', 'order', $id, [ 'refunded' => (int) $order->refunded ], [ 'refunded' => (int) $order->charge ] );
+					++$done;
+					break;
+			}
+		}
+
+		if ( 'resync' === $do && $done > 0 ) {
+			\ClickPop\Core\Sync\OrderStatusSync::run();
+		}
+
+		self::back(
+			sprintf(
+				/* translators: %d: affected order count */
+				__( 'اقدام روی %d سفارش انجام شد.', 'clickpop-core' ),
+				$done
+			)
+		);
+	}
+
+	/** خروجی CSV سفارش‌ها با همان فیلتر جاری. */
+	public static function handleExport(): void {
+		if ( ! current_user_can( self::CAP ) ) {
+			wp_die( esc_html__( 'دسترسی لازم را ندارید.', 'clickpop-core' ), '', [ 'response' => 403 ] );
+		}
+
+		check_admin_referer( 'clickpop_orders_export' );
+
+		global $wpdb;
+
+		$orders   = \ClickPop\Core\Database\Installer::table( 'orders' );
+		$services = \ClickPop\Core\Database\Installer::table( 'services' );
+
+		$status = isset( $_GET['cp_status'] ) ? sanitize_key( wp_unslash( $_GET['cp_status'] ) ) : '';
+		$from   = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : '';
+		$to     = isset( $_GET['to'] ) ? sanitize_text_field( wp_unslash( $_GET['to'] ) ) : '';
+
+		$where  = '1=1';
+		$params = [];
+
+		if ( '' !== $status && array_key_exists( $status, OrderStatus::labels() ) ) {
+			$where   .= ' AND o.status = %s';
+			$params[] = $status;
+		}
+		if ( 1 === preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) {
+			$where   .= ' AND o.created_at >= %s';
+			$params[] = $from . ' 00:00:00';
+		}
+		if ( 1 === preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) ) {
+			$where   .= ' AND o.created_at <= %s';
+			$params[] = $to . ' 23:59:59';
+		}
+
+		$sql = "SELECT o.*, s.name AS service_name FROM {$orders} o
+		        LEFT JOIN {$services} s ON s.id = o.service_id
+		        WHERE {$where} ORDER BY o.id DESC LIMIT 5000";
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$rows = $params ? $wpdb->get_results( $wpdb->prepare( $sql, $params ) ) : $wpdb->get_results( $sql );
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=clickpop-orders-' . gmdate( 'Ymd-His' ) . '.csv' );
+
+		$out = fopen( 'php://output', 'w' );
+
+		// BOM تا اکسل فارسی را درست باز کند.
+		fwrite( $out, "\xEF\xBB\xBF" );
+
+		fputcsv(
+			$out,
+			[ 'id', 'user', 'email', 'service', 'quantity', 'charge_toman', 'cost_toman', 'refunded_toman', 'profit_toman', 'status', 'provider_status', 'remote_id', 'link', 'created_at' ]
+		);
+
+		foreach ( (array) $rows as $row ) {
+			$user = get_userdata( (int) $row->user_id );
+			$t    = static fn( int $rials ): int => intdiv( $rials, 10 );
+
+			fputcsv(
+				$out,
+				[
+					(int) $row->id,
+					$user ? $user->display_name : '',
+					$user ? $user->user_email : '',
+					(string) ( $row->service_name ?? '' ),
+					(int) $row->quantity,
+					$t( (int) $row->charge ),
+					$t( (int) $row->cost ),
+					$t( (int) $row->refunded ),
+					$t( (int) $row->charge - (int) $row->cost - (int) $row->refunded ),
+					(string) $row->status,
+					(string) ( $row->provider_status ?? '' ),
+					(string) ( $row->remote_order_id ?? '' ),
+					(string) $row->link,
+					(string) $row->created_at,
+				]
+			);
+		}
+
+		fclose( $out );
+		exit;
 	}
 
 	public static function handle(): void {

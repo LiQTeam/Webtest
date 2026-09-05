@@ -18,6 +18,12 @@ final class Installer {
 		self::migrate();
 		self::registerRoles();
 		\ClickPop\Core\Sync\Scheduler::schedule();
+
+		// نصب خودکار: صفحه‌های داشبورد، سرویس‌ها و قوانین + منوی اصلی.
+		// مدیر نباید برای راه‌افتادن سایت هیچ صفحه‌ای دستی بسازد.
+		$pages = \ClickPop\Core\Setup\PageInstaller::ensure();
+		\ClickPop\Core\Setup\PageInstaller::ensureMenu( $pages );
+
 		flush_rewrite_rules();
 	}
 

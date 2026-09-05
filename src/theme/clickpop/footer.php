@@ -14,16 +14,22 @@ defined( 'ABSPATH' ) || exit;
 			<div class="cp-footer__grid">
 				<div>
 					<?php clickpop_logo(); ?>
-					<p class="cp-footer__about"><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>
+					<p class="cp-footer__about">
+						<?php
+						$clickpop_about = (string) clickpop_content( 'footer_about', '' );
+						echo esc_html( '' !== $clickpop_about ? $clickpop_about : (string) get_bloginfo( 'description' ) );
+						?>
+					</p>
 					<?php clickpop_social_links(); ?>
 				</div>
 
 				<?php
 				$clickpop_contact = array_filter(
 					[
-						__( 'تلفن', 'clickpop' )  => (string) clickpop_content( 'contact_phone', '' ),
-						__( 'ایمیل', 'clickpop' ) => (string) clickpop_content( 'contact_email', '' ),
-						__( 'نشانی', 'clickpop' ) => (string) clickpop_content( 'contact_address', '' ),
+						__( 'تلفن', 'clickpop' )   => (string) clickpop_content( 'contact_phone', '' ),
+						__( 'ایمیل', 'clickpop' )  => (string) clickpop_content( 'contact_email', '' ),
+						__( 'نشانی', 'clickpop' )  => (string) clickpop_content( 'contact_address', '' ),
+						__( 'ساعت کاری', 'clickpop' ) => (string) clickpop_content( 'contact_hours', '' ),
 					]
 				);
 				?>
@@ -63,15 +69,23 @@ defined( 'ABSPATH' ) || exit;
 				<?php endif; ?>
 			</div>
 
+			<?php clickpop_trust_badges(); ?>
+
 			<div class="cp-footer__bot">
 				<span>
 					<?php
-					printf(
-						/* translators: 1: year, 2: site name */
-						esc_html__( '© %1$s %2$s — همهٔ حقوق محفوظ است.', 'clickpop' ),
-						esc_html( wp_date( 'Y' ) ),
-						esc_html( get_bloginfo( 'name' ) )
-					);
+					$clickpop_note = (string) clickpop_content( 'footer_note', '' );
+
+					if ( '' !== $clickpop_note ) {
+						echo esc_html( $clickpop_note );
+					} else {
+						printf(
+							/* translators: 1: year, 2: site name */
+							esc_html__( '© %1$s %2$s — همهٔ حقوق محفوظ است.', 'clickpop' ),
+							esc_html( wp_date( 'Y' ) ),
+							esc_html( get_bloginfo( 'name' ) )
+						);
+					}
 					?>
 				</span>
 

@@ -75,6 +75,49 @@ final class Facade {
 		return $page > 0 ? (string) get_permalink( $page ) : home_url( '/' );
 	}
 
+	/**
+	 * آمار واقعی سایت برای نمایش عمومی.
+	 *
+	 * فقط اعداد جمعی برمی‌گردد؛ هیچ دادهٔ کاربری بیرون نمی‌رود.
+	 *
+	 * @return array{services:int,completed:int,rate:int}
+	 */
+	public static function siteStats(): array {
+		$cached = get_transient( 'clickpop_site_stats' );
+
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+
+		$services = \ClickPop\Core\Database\Installer::table( 'services' );
+		$orders   = \ClickPop\Core\Database\Installer::table( 'orders' );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$active = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$services} WHERE status = 'active'" );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$row = $wpdb->get_row(
+			"SELECT COUNT(*) AS total,
+			        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed
+			 FROM {$orders}"
+		);
+
+		$total     = (int) ( $row->total ?? 0 );
+		$completed = (int) ( $row->completed ?? 0 );
+
+		$stats = [
+			'services'  => $active,
+			'completed' => $completed,
+			'rate'      => $total > 0 ? (int) round( ( $completed / $total ) * 100 ) : 0,
+		];
+
+		set_transient( 'clickpop_site_stats', $stats, 15 * MINUTE_IN_SECONDS );
+
+		return $stats;
+	}
+
 	public static function isReady(): bool {
 		return (bool) self::serviceTree();
 	}

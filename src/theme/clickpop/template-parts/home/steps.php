@@ -13,9 +13,14 @@ if ( ! $cp_steps ) {
 	return;
 }
 ?>
-<section class="cp-section cp-section--alt" id="how">
+<section class="cp-section cp-section--soft" id="how">
 	<div class="cp-wrap">
-		<h2 class="cp-section__t"><?php clickpop_the_content_field( 'steps_title' ); ?></h2>
+		<div class="cp-sechead cp-sechead--center">
+			<h2 class="cp-section__t"><?php clickpop_the_content_field( 'steps_title' ); ?></h2>
+			<?php if ( '' !== (string) clickpop_content( 'steps_text', '' ) ) : ?>
+				<p class="cp-sechead__p"><?php clickpop_the_content_field( 'steps_text' ); ?></p>
+			<?php endif; ?>
+		</div>
 
 		<ol class="cp-steps">
 			<?php foreach ( $cp_steps as $cp_i => $cp_step ) : ?>
