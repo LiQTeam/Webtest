@@ -76,6 +76,23 @@ add_action(
 			return;
 		}
 
+		// اگر چیزی زودتر خروجی فرستاده باشد (مثلاً فاصله یا BOM در wp-config.php)
+		// هدر دیگر قابل ارسال نیست. بدون این گارد، تم چهار Warning روی صفحه چاپ می‌کند
+		// و علت واقعی را زیر انبوه خطای خودش پنهان می‌کند.
+		if ( headers_sent( $file, $line ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && current_user_can( 'manage_options' ) ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						'ClickPop: هدرهای امنیتی ارسال نشد؛ خروجی از پیش شروع شده بود در %1$s خط %2$d.',
+						$file,
+						$line
+					)
+				);
+			}
+
+			return;
+		}
+
 		header( 'X-Content-Type-Options: nosniff' );
 		header( 'Referrer-Policy: strict-origin-when-cross-origin' );
 		header( 'Permissions-Policy: geolocation=(), microphone=(), camera=()' );
