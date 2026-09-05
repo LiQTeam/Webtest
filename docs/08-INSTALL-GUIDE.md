@@ -92,13 +92,26 @@ default_storage_engine = InnoDB
 /* ClickPop start */
 define( 'CLICKPOP_ENCRYPTION_KEY', 'PUT_YOUR_44_CHAR_KEY_HERE' );
 define( 'DISABLE_WP_CRON', true );
-define( 'WP_DEBUG', false );
-define( 'WP_DEBUG_DISPLAY', false );
-define( 'WP_DEBUG_LOG', true );
 /* ClickPop end */
 ```
 
 فایل آمادهٔ کپی: `dist/wp-config-clickpop-block.txt` (کاملاً ASCII، بدون BOM).
+
+> ⚠️ **`WP_DEBUG` را اینجا تعریف نکنید.** وردپرس خودش چند خط بالاتر آن را تعریف کرده است
+> (`define( 'WP_DEBUG', false );` زیر کامنت «For developers: WordPress debugging mode»).
+> تعریف دوباره یعنی `Warning: Constant WP_DEBUG already defined` و همان زنجیرهٔ
+> «headers already sent» که کل صفحه را خراب می‌کند.
+
+### تنظیم حالت اشکال‌زدایی (اختیاری)
+
+اگر می‌خواهید خطاها در فایل لاگ ثبت شوند ولی روی صفحه دیده نشوند، **خط موجود وردپرس** را
+پیدا کنید و همان‌جا این دو خط را زیرش اضافه کنید — نه داخل بلوک ClickPop:
+
+```php
+define( 'WP_DEBUG', false );          /* خط خود وردپرس، دست‌نخورده بماند */
+define( 'WP_DEBUG_DISPLAY', false );  /* این دو خط را زیرش اضافه کنید */
+define( 'WP_DEBUG_LOG', true );
+```
 
 ### تولید کلید
 
@@ -122,12 +135,11 @@ define( 'DB_HOST', 'localhost' );
 
 $table_prefix = 'click_';
 
+define( 'WP_DEBUG', false );            ← خط خود وردپرس، تکرارش نکنید
+
 /* ClickPop start */                    ← بلوک اینجا
 define( 'CLICKPOP_ENCRYPTION_KEY', '...' );
 define( 'DISABLE_WP_CRON', true );
-define( 'WP_DEBUG', false );
-define( 'WP_DEBUG_DISPLAY', false );
-define( 'WP_DEBUG_LOG', true );
 /* ClickPop end */
 
 /* That's all, stop editing! Happy publishing. */
@@ -482,6 +494,30 @@ location ~ ^/clickpop-payment/ { set $skip_cache 1; }
 | رمز دیتابیس | در cPanel → MySQL Databases → رمز کاربر را عوض کنید، بعد `DB_PASSWORD` را به‌روز کنید. |
 | نمک‌های وردپرس | مقادیر `AUTH_KEY` تا `NONCE_SALT` را از https://api.wordpress.org/secret-key/1.1/salt/ بگیرید و جایگزین کنید (همهٔ کاربران یک بار خارج می‌شوند). |
 | کلید API سرویس‌دهنده | اگر افزونه نصب بوده و کلید ذخیره شده، در پنل فالووران کلید را باطل و کلید تازه بسازید. |
+
+### خطای «Constant WP_DEBUG already defined»
+
+```
+Warning: Constant WP_DEBUG already defined in .../wp-config.php on line 76
+Warning: Cannot modify header information - headers already sent by (... wp-config.php:76)
+```
+
+**علت:** `WP_DEBUG` دو بار تعریف شده — یک بار توسط خود وردپرس و یک بار در بلوک اضافه‌شده.
+هشدار PHP خودش خروجی است، و همان خروجی ارسال هدرها را می‌شکند؛ به همین دلیل چهار خطای
+«headers already sent» پشت‌بندش می‌آید.
+
+**رفع:** `wp-config.php` را باز کنید، `WP_DEBUG` را با Ctrl+F بگردید. باید **فقط یک بار** پیدا شود.
+سه خط `WP_DEBUG` / `WP_DEBUG_DISPLAY` / `WP_DEBUG_LOG` را از بلوک ClickPop حذف کنید تا فقط
+این دو خط بماند:
+
+```php
+/* ClickPop start */
+define( 'CLICKPOP_ENCRYPTION_KEY', '...' );
+define( 'DISABLE_WP_CRON', true );
+/* ClickPop end */
+```
+
+همین قاعده برای هر ثابت دیگری هم هست: هرگز چیزی را که وردپرس از قبل تعریف کرده دوباره تعریف نکنید.
 
 ### گام ۴ — تأیید
 

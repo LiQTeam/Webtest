@@ -1,7 +1,4 @@
 /* ClickPop start */
 define( 'CLICKPOP_ENCRYPTION_KEY', 'PUT_YOUR_44_CHAR_KEY_HERE' );
 define( 'DISABLE_WP_CRON', true );
-define( 'WP_DEBUG', false );
-define( 'WP_DEBUG_DISPLAY', false );
-define( 'WP_DEBUG_LOG', true );
 /* ClickPop end */
