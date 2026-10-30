@@ -11,6 +11,8 @@ import json, pathlib, sys, wave
 
 import numpy as np
 
+import voice as voicekit
+
 SR = 48000
 ROOT = pathlib.Path(__file__).resolve().parent
 
@@ -416,14 +418,18 @@ def main(ep):
     d = ROOT / ep
     S = json.loads((d / "script.json").read_text())
     n = int((S["duration"] + 0.5) * SR)
+    plans = []
     for i, line in enumerate(S["lines"]):
-        line["syl"] = syllables(line, 100 + i)
+        plan = voicekit.plan_line(line, 100 + i)
+        plans.append(plan)
+        # lip-sync: the mouth opens wider on آ/ا than on ای/او
+        line["syl"] = [dict(t=round(s["t"], 3), d=round(s["d"], 3), a=round(s["a"] * voicekit.MOUTH[s["v"]], 2)) for s in plan]
     (d / "timeline.js").write_text("window.TL = " + json.dumps(S, ensure_ascii=False) + ";\n")
 
     vox = np.zeros(n)
     for i, line in enumerate(S["lines"]):
-        voice(line, line["syl"], vox, 200 + i)
-    vox = reverb(vox, 0.6, 0.10)
+        voicekit.render_line(line, plans[i], vox, 200 + i)
+    vox = reverb(vox, 0.5, 0.08)
 
     mus = np.zeros(n)
     for i, sec in enumerate(S["music"]):
