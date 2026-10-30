@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fa" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>میوه‌استار</title>
+<link rel="stylesheet" href="../fonts/vazirmatn.css">
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Vazirmatn', sans-serif; }
+  svg { position: absolute; inset: 0; display: block; }
+  .ov { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none; direction: rtl; }
+  #sub { top: 1420px; display: flex; justify-content: center; }
+  #sub .box { max-width: 860px; background: rgba(16, 8, 30, 0.82); border-radius: 34px; padding: 22px 40px 28px; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  #sub .who { font-size: 34px; font-weight: 900; margin-bottom: 4px; }
+  #sub .txt { font-size: 56px; font-weight: 800; color: #fff; line-height: 1.45; }
+  #title { inset: 0; overflow: hidden; }
+  #title .band { position: absolute; left: -200px; right: -200px; top: 640px; height: 640px; transform-origin: 50% 50%; background: repeating-linear-gradient(-55deg, #ff2e7e 0 90px, #ff4f93 90px 180px); }
+  #title .name { position: absolute; left: 0; right: 0; top: 770px; font-size: 190px; font-weight: 900; color: #fff; text-shadow: 0 10px 0 #b0105a, 0 22px 40px rgba(0,0,0,.35); }
+  #title .ep { position: absolute; left: 0; right: 0; top: 1040px; font-size: 64px; font-weight: 800; color: #ffe14d; }
+  #card { inset: 0; background: #05040c; color: #fff; }
+  #card .t1 { position: absolute; left: 0; right: 0; top: 820px; font-size: 92px; font-weight: 900; }
+  #end { inset: 0; }
+  #end .t1 { position: absolute; left: 0; right: 0; top: 330px; font-size: 128px; font-weight: 900; color: #fff; text-shadow: 0 8px 0 #7a0a1a, 0 20px 50px rgba(0,0,0,.6); }
+  #end .t2 { position: absolute; left: 0; right: 0; top: 520px; font-size: 64px; font-weight: 800; color: #ffe14d; }
+  #end .t3 { position: absolute; left: 140px; right: 140px; top: 1430px; font-size: 46px; font-weight: 800; color: #fff; background: rgba(16,8,30,.85); border-radius: 30px; padding: 22px 30px; }
+  #flash { inset: 0; background: #fff; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="v" width="1080" height="1920" viewBox="0 0 1080 1920"><defs id="defs"></defs><g id="world"></g><g id="fx"></g></svg>
+  <div id="title" class="ov"><div class="band"></div><div class="name">میوه‌استار</div><div class="ep"></div></div>
+  <div id="card" class="ov"><div class="t1"></div></div>
+  <div id="end" class="ov"><div class="t1"></div><div class="t2"></div><div class="t3"></div></div>
+  <div id="sub" class="ov"><div class="box"><div class="who"></div><div class="txt"></div></div></div>
+  <div id="flash" class="ov"></div>
+</div>
+<script>window.ready = false;</script>
+<script src="timeline.js"></script>
+<script src="../lib/chars.js"></script>
+<script src="../lib/scenes.js"></script>
+<script src="../lib/props.js"></script>
+<script src="../lib/sets.js"></script>
+<script src="../lib/episode.js"></script>
+<script>document.getElementById('defs').innerHTML = DEFS + SCENE_DEFS + PROP_DEFS;</script>
+<script src="shots.js"></script>
+<script>document.fonts.ready.then(() => { window.render(0); window.ready = true; });</script>
+</body>
+</html>

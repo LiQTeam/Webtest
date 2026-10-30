@@ -84,7 +84,7 @@ function nightBG(t) {
   s += `<path d="M140,640 L-140,1360 L420,1360 Z" fill="url(#gLamp)" opacity="${f1(0.55 + Math.sin(t * 13) * 0.02)}"/>`;
   s += `<rect x="126" y="560" width="22" height="800" fill="#1a1626"/><path d="M100,560 L180,560 L160,620 L120,620 Z" fill="#1a1626"/><circle cx="140" cy="630" r="16" fill="#ffe7a3"/><circle cx="140" cy="630" r="50" fill="#ffd36b" opacity="0.25"/>`;
   // ground
-  s += `<rect y="1350" width="1080" height="570" fill="url(#gGround)"/>`;
+  s += `<rect y="1350" width="1080" height="1200" fill="url(#gGround)"/>`;
   s += `<ellipse cx="160" cy="1390" rx="260" ry="40" fill="#ffd36b" opacity="0.18"/>`;
   return s;
 }

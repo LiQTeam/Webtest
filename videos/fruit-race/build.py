@@ -246,6 +246,40 @@ def music(sec, buf, seed):
             chirp = np.sin(2 * np.pi * 4600 * tt) * (0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 32 * tt))) * np.exp(-tt / 0.08)
             add(buf, t, chirp, 0.025)
             t += r.uniform(0.6, 1.4)
+    elif style == "triumph":
+        beat = 60 / 128
+        t = a; i = 0
+        prog_ = [[48, 60, 64, 67, 72], [53, 60, 65, 69, 72], [55, 62, 67, 71, 74], [48, 60, 64, 67, 72]]
+        while t < b - 0.05:
+            ch = prog_[(i // 4) % 4]
+            if i % 4 == 0:
+                d = min(beat * 4, b - t) + 0.3
+                for m in ch[1:]:
+                    add(buf, t, saw(midi(m), d, 2600) * note_env(int(d * SR), a=0.02, d=1.2, s=0.5, rel=0.3), 0.05)
+            add(buf, t, kick(), 0.6)
+            if i % 2 == 1: add(buf, t, snare(r), 0.22)
+            add(buf, t, saw(midi(ch[0] - 12), beat * 0.8, 900, (1,)) * note_env(int(beat * 0.8 * SR), d=0.2), 0.3)
+            for h in range(2):
+                add(buf, t + h * beat / 2, hat(r), 0.6)
+                m = ch[1 + int(r.integers(0, len(ch) - 1))] + 12
+                add(buf, t + h * beat / 2, additive(midi(m), 0.3, [(1, 1), (4, 0.25)], 6000) * note_env(int(0.3 * SR), d=0.08), 0.1)
+            t += beat; i += 1
+    elif style == "tech":
+        beat = 60 / 112
+        t = a; i = 0
+        prog_ = [[45, 57, 60, 64], [41, 57, 60, 65], [48, 55, 60, 64], [43, 55, 59, 62]]
+        while t < b - 0.05:
+            ch = prog_[(i // 4) % 4]
+            if i % 4 == 0:
+                d = min(beat * 4, b - t) + 0.4
+                for m in ch[1:]:
+                    add(buf, t, saw(midi(m), d, 1500) * note_env(int(d * SR), a=0.2, d=6, s=0.7, rel=0.4), 0.04)
+            for h in range(4):
+                m = ch[1 + (i * 4 + h) % (len(ch) - 1)] + 12
+                add(buf, t + h * beat / 4, additive(midi(m), 0.18, [(1, 1), (3, 0.3)], 5000) * note_env(int(0.18 * SR), d=0.05), 0.07)
+            if i % 2 == 0: add(buf, t, kick(), 0.35)
+            add(buf, t + beat / 2, hat(r), 0.4)
+            t += beat; i += 1
     elif style == "end":
         d = b - a + 0.5
         add(buf, a, saw(midi(26), d, 400) * note_env(int(d * SR), a=0.05, d=1.4, s=0.2, rel=1.0), 0.25)
@@ -306,6 +340,56 @@ def sfx(name, r):
         chord = sum(saw(midi(m), d, 2200) for m in (38, 50, 53, 56, 62))
         hit = np.sin(2 * np.pi * np.cumsum(55 + 60 * np.exp(-t / 0.05)) / SR) * np.exp(-t / 0.5)
         return chord * note_env(n, a=0.01, d=0.9, s=0.15, rel=0.8) * 0.18 + hit * 0.7
+    if name == "riser":
+        d = 2.8; n = int(d * SR); t = np.arange(n) / SR
+        f = 300 * 2 ** (t / d * 2.5)
+        return (np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.4 + np.diff(r.standard_normal(n), prepend=0) * 0.15) * (t / d) ** 1.5 * 0.5
+    if name == "cash":
+        out = np.zeros(int(1.2 * SR))
+        for k in range(8):
+            n = int(0.05 * SR); t = np.arange(n) / SR
+            fl = np.diff(r.standard_normal(n), prepend=0) * np.exp(-t / 0.012)
+            i0 = int(k * 0.14 * SR); out[i0:i0 + n] += fl
+        return out * 0.5
+    if name == "buzz":
+        n = int(0.45 * SR); t = np.arange(n) / SR
+        return np.sign(np.sin(2 * np.pi * 150 * t)) * 0.18 * (np.sin(np.pi * t / t[-1]) ** 0.3)
+    if name == "glitch":
+        n = int(0.6 * SR); t = np.arange(n) / SR
+        sq = np.sign(np.sin(2 * np.pi * (80 + 600 * (r.random(n) > 0.97).cumsum() % 400) * t))
+        return (sq * 0.25 + r.standard_normal(n) * 0.2) * (np.floor(t * 30) % 2) * np.exp(-t / 0.4)
+    if name == "sizzle":
+        n = int(6.0 * SR); t = np.arange(n) / SR
+        nz = r.standard_normal(n); hiss = nz - lowpass(nz, 3000)
+        crack = (r.random(n) > 0.9993) * 1.0
+        return (hiss * 0.06 + crack * 0.4) * np.minimum(1, t / 0.5) * np.minimum(1, (t[-1] - t) / 0.5)
+    if name == "cheer":
+        n = int(3.0 * SR); t = np.arange(n) / SR
+        nz = r.standard_normal(n); crowd = lowpass(nz, 1800) - lowpass(nz, 300)
+        out = crowd * 0.6 * np.abs(np.sin(np.pi * t / t[-1])) ** 0.5
+        for k in range(40):
+            m = int(0.02 * SR); i0 = int(r.uniform(0, 2.7) * SR)
+            out[i0:i0 + m] += np.diff(r.standard_normal(m), prepend=0) * np.exp(-np.arange(m) / SR / 0.004) * 0.5
+        return out * 0.6
+    if name == "drumroll":
+        d = 2.6; out = np.zeros(int((d + 0.3) * SR)); k = 0.0
+        while k < d:
+            m = int(0.06 * SR); tt = np.arange(m) / SR
+            hit = (np.diff(r.standard_normal(m), prepend=0) * 0.5 + np.sin(2 * np.pi * 200 * tt) * 0.4) * np.exp(-tt / 0.03) * (0.3 + 0.7 * k / d)
+            i0 = int(k * SR); out[i0:i0 + m] += hit; k += 0.045
+        return out * 0.5
+    if name == "bonk":
+        n = int(0.4 * SR); t = np.arange(n) / SR
+        f = 500 * np.exp(-t / 0.08) + 200
+        return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.12) * 0.6
+    if name == "laugh":
+        out = np.zeros(int(1.4 * SR))
+        for k in range(6):
+            m = int(0.13 * SR); tt = np.arange(m) / SR
+            f = 260 + 40 * np.sin(k)
+            h = sum(np.sin(2 * np.pi * f * j * tt) / j for j in range(1, 8)) * np.sin(np.pi * tt / tt[-1])
+            i0 = int(k * 0.2 * SR); out[i0:i0 + m] += h
+        return out * 0.15
     raise ValueError(name)
 
 
@@ -359,7 +443,7 @@ def main(ep):
     fx = reverb(fx, 0.9, 0.12, 13)
 
     mix = vox * 1.0 + mus * 0.75 + fx * 0.8
-    mix = np.tanh(mix * 1.2) / 1.2
+    mix = np.tanh(np.nan_to_num(mix) * 1.2) / 1.2
     (d / "audio").mkdir(exist_ok=True)
     write_wav(d / "audio" / "mix.wav", mix[: int(S["duration"] * SR)])
     print(f"{ep}: {len(S['lines'])} lines, {sum(len(l['syl']) for l in S['lines'])} syllables -> timeline.js, audio/mix.wav")

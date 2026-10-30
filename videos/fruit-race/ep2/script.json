@@ -1,0 +1,46 @@
+{
+  "episode": 2,
+  "duration": 40.0,
+  "title": {"from": 3.5, "to": 5.5, "text": "قسمت ۲ · رمز"},
+  "cards": [{"from": 14.4, "to": 16.1, "text": "آن طرف شهر..."}],
+  "end": {"from": 37.0, "t1": "ادامه دارد...", "t2": "قسمت ۳ · سقوط", "t3": "فالو کن که قسمت بعد رو از دست ندی"},
+  "flashes": [3.0],
+  "lines": [
+    {"who": "moozi",  "from": 0.9,  "to": 3.2,  "text": "صد و بیست هزار تا؟! من ترکوندم!"},
+    {"who": "ananas", "from": 6.3,  "to": 9.4,  "text": "صد و بیست هزار... اون هم یک‌شبه؟ جالبه."},
+    {"who": "moozi",  "from": 10.4, "to": 13.3, "text": "استعداده عزیزم، استعداد!"},
+    {"who": "holu",   "from": 16.9, "to": 20.1, "text": "یه دستور دیگه... شاید این یکی دیده بشه."},
+    {"who": "holu",   "from": 22.1, "to": 24.4, "text": "صد و چهل تا... فقط."},
+    {"who": "kermo",  "from": 25.9, "to": 29.6, "text": "هه‌هه! رمزها مال من، پول‌ها هم مال من!"},
+    {"who": "moozi",  "from": 33.0, "to": 34.3, "text": "...چی؟!"}
+  ],
+  "sfx": [
+    {"t": 0.15, "sound": "riser", "gain": 0.9},
+    {"t": 3.0, "sound": "impact", "gain": 0.7},
+    {"t": 3.05, "sound": "sparkle", "gain": 0.9},
+    {"t": 3.5, "sound": "whoosh", "gain": 0.7},
+    {"t": 3.8, "sound": "pop", "gain": 0.7},
+    {"t": 5.5, "sound": "cheer", "gain": 0.8},
+    {"t": 8.9, "sound": "tick", "gain": 0.6},
+    {"t": 12.1, "sound": "sparkle", "gain": 0.7},
+    {"t": 14.3, "sound": "whoosh", "gain": 0.6},
+    {"t": 16.1, "sound": "sizzle", "gain": 0.8},
+    {"t": 21.0, "sound": "tick", "gain": 0.5},
+    {"t": 21.3, "sound": "tick", "gain": 0.5},
+    {"t": 21.6, "sound": "tick", "gain": 0.5},
+    {"t": 25.3, "sound": "cash", "gain": 0.8},
+    {"t": 27.0, "sound": "cash", "gain": 0.8},
+    {"t": 29.7, "sound": "laugh", "gain": 0.8},
+    {"t": 31.3, "sound": "buzz", "gain": 0.9},
+    {"t": 31.9, "sound": "buzz", "gain": 0.9},
+    {"t": 34.6, "sound": "ding", "gain": 0.6},
+    {"t": 35.6, "sound": "glitch", "gain": 0.9},
+    {"t": 37.0, "sound": "sting", "gain": 1.0}
+  ],
+  "music": [
+    {"from": 0.2, "to": 14.4, "style": "triumph"},
+    {"from": 16.1, "to": 25.2, "style": "tender"},
+    {"from": 25.2, "to": 37.0, "style": "night"},
+    {"from": 37.0, "to": 40.0, "style": "end"}
+  ]
+}

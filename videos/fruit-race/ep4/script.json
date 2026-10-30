@@ -1,0 +1,40 @@
+{
+  "episode": 4,
+  "duration": 45.0,
+  "title": {"from": 3.5, "to": 5.5, "text": "قسمت ۴ · راه درست"},
+  "end": {"from": 41.2, "t1": "ادامه دارد...", "t2": "قسمت آخر · سفیر", "t3": "فالو کن که قسمت آخر رو از دست ندی"},
+  "flashes": [0.35],
+  "lines": [
+    {"who": "tooti",  "from": 0.45, "to": 3.2,  "text": "قانون اول: هیچ‌کس نباید رمزت رو بخواد!"},
+    {"who": "holu",   "from": 5.9,  "to": 7.9,  "text": "پس چطوری دیده بشم؟"},
+    {"who": "tooti",  "from": 8.3,  "to": 10.8, "text": "محتوای خوب داری. فقط یه کم دیده‌شدن لازمه."},
+    {"who": "tooti",  "from": 11.3, "to": 13.9, "text": "قیمت و حداقل و حداکثر رو قبل از پرداخت می‌بینی."},
+    {"who": "holu",   "from": 14.4, "to": 15.8, "text": "رمز نمی‌خواد؟"},
+    {"who": "tooti",  "from": 16.3, "to": 18.3, "text": "فقط لینک عمومی پیجت. همین!"},
+    {"who": "holu",   "from": 23.9, "to": 26.0, "text": "پولمم خودش برگشت؟!"},
+    {"who": "tooti",  "from": 26.5, "to": 28.9, "text": "آره، خودکار و با رسید. همه‌چی شفاف."},
+    {"who": "ananas", "from": 37.8, "to": 40.6, "text": "فردا... برنده رو اعلام می‌کنم."}
+  ],
+  "sfx": [
+    {"t": 0.35, "sound": "impact", "gain": 0.9},
+    {"t": 3.5, "sound": "whoosh", "gain": 0.7}, {"t": 3.8, "sound": "pop", "gain": 0.7},
+    {"t": 11.0, "sound": "whoosh", "gain": 0.5},
+    {"t": 11.8, "sound": "tap", "gain": 0.8}, {"t": 12.8, "sound": "tap", "gain": 0.8}, {"t": 14.4, "sound": "tap", "gain": 0.8},
+    {"t": 14.6, "sound": "typing", "gain": 0.6},
+    {"t": 17.0, "sound": "tap", "gain": 0.9}, {"t": 17.1, "sound": "pop", "gain": 0.6},
+    {"t": 18.0, "sound": "riser", "gain": 0.5},
+    {"t": 21.8, "sound": "ding", "gain": 0.8}, {"t": 22.0, "sound": "sparkle", "gain": 0.7},
+    {"t": 24.0, "sound": "pop", "gain": 0.6},
+    {"t": 29.3, "sound": "whoosh", "gain": 0.6}, {"t": 31.8, "sound": "whoosh", "gain": 0.6}, {"t": 34.3, "sound": "whoosh", "gain": 0.6},
+    {"t": 29.5, "sound": "sizzle", "gain": 0.6},
+    {"t": 37.2, "sound": "whoosh", "gain": 0.5},
+    {"t": 41.2, "sound": "sting", "gain": 0.9}
+  ],
+  "music": [
+    {"from": 0.35, "to": 11.0, "style": "bouncy"},
+    {"from": 11.0, "to": 29.2, "style": "tech"},
+    {"from": 29.2, "to": 37.2, "style": "triumph"},
+    {"from": 37.2, "to": 41.2, "style": "night"},
+    {"from": 41.2, "to": 45.0, "style": "end"}
+  ]
+}

@@ -284,13 +284,13 @@ function screenProfile(name, count, label = 'فالوور', accent = '#ff3d7f') 
     `<rect x="40" y="440" width="220" height="64" rx="20" fill="${accent}"/><text x="150" y="483" font-size="28" font-weight="800" text-anchor="middle" fill="#fff" font-family="Vazirmatn">دنبال کردن</text>`;
 }
 
-function screenPassword(dots, user = 'moozi.luxury') {
+function screenPassword(dots, user = 'moozi.luxury', panel = 'پنل ارزون‌کده') {
   let d = '';
   for (let i = 0; i < dots; i++) d += `<circle cx="${f1(232 - i * 30)}" cy="300" r="10" fill="#1b1430"/>`;
   return `<rect width="300" height="560" rx="34" fill="#12101c"/>` +
-    `<text x="150" y="110" font-size="30" font-weight="800" text-anchor="middle" fill="#9be36b" font-family="Vazirmatn">پنل ارزون‌کده</text>` +
+    `<text x="150" y="110" font-size="30" font-weight="800" text-anchor="middle" fill="#9be36b" font-family="Vazirmatn">${panel}</text>` +
     `<text x="150" y="150" font-size="20" font-weight="500" text-anchor="middle" fill="#8a8399" font-family="Vazirmatn">فالوور نصف قیمت</text>` +
-    `<rect x="30" y="180" width="240" height="56" rx="14" fill="#fff"/><text x="250" y="216" font-size="22" font-weight="500" text-anchor="end" fill="#1b1430" font-family="Vazirmatn">${user}</text>` +
+    `<rect x="30" y="180" width="240" height="56" rx="14" fill="#fff"/><text x="250" y="216" font-size="22" font-weight="500" text-anchor="end" fill="#1b1430" font-family="Vazirmatn" direction="ltr">${user}</text>` +
     `<text x="270" y="262" font-size="20" font-weight="800" text-anchor="end" fill="#ff5d5d" font-family="Vazirmatn">رمز عبور پیج</text>` +
     `<rect x="30" y="272" width="240" height="56" rx="14" fill="#fff" stroke="#ff5d5d" stroke-width="4"/>${d}` +
     `<rect x="30" y="370" width="240" height="64" rx="18" fill="#9be36b"/><text x="150" y="412" font-size="28" font-weight="900" text-anchor="middle" fill="#12101c" font-family="Vazirmatn">ارسال</text>`;
