@@ -79,27 +79,31 @@ function laptop(x, y, scale, screen) {
     `<path d="M-400,0 L400,0 L370,40 L-370,40 Z" fill="#c9ccd8" stroke="#6b6e7a" stroke-width="4"/><rect x="-70" y="2" width="140" height="10" rx="5" fill="#9a9dab"/></g>`;
 }
 
-// ---------------------------------------------------------------- ClickPop logo
-const CP_RING = 'M 147.91 5.17 A 148.0 148.0 0 1 1 -5.17 -147.91';
-const CP_CURSOR = 'M 143.12 -173.67 L 45.54 -98.71 L 76.65 -93.06 L 56.85 -44.97 L 83.72 -35.07 L 103.52 -83.16 L 144.53 -67.60 Z';
-// draw 0..1 draws the ring; pop 0..1 scales the cursor in
-function cpIcon(x, y, size, draw = 1, pop = 1, ringColor = 'url(#icB)') {
-  const L = 2 * Math.PI * 148 * (266 / 360);
-  return `<g transform="translate(${f1(x)},${f1(y)}) scale(${(size / 512 * 1.21).toFixed(4)})">` +
-    `<path d="${CP_RING}" fill="none" stroke="${ringColor}" stroke-width="56" stroke-linecap="round" stroke-dasharray="${f1(L)}" stroke-dashoffset="${f1(L * (1 - draw))}"/>` +
-    (pop > 0.01 ? `<g transform="translate(95,-110) scale(${pop.toFixed(3)}) translate(-95,110)"><path d="${CP_CURSOR}" fill="url(#icO)" stroke="url(#icO)" stroke-width="20" stroke-linejoin="round"/></g>` : '') +
-    `</g>`;
+// ---------------------------------------------------------------- ClickPop logo (brand kit v6)
+// Symbol built on the v6 grid: 64-unit squares, 24 gaps, a 1:2 blade, radii 8/16/32/12, frame 392x336.
+const CP_BODY = 'M17.69,187.38 L384.84,3.58 Q392,0 392,8 L392,72 L168,184 L392,184 L392,336 L264,336 L264,288 A16,16 0 0 1 280,272 L316,272 A12,12 0 0 0 316,248 L32,248 A32,32 0 0 1 17.69,187.38 Z';
+const cpSquare = x => `M${x},336 L${x},288 A16,16 0 0 1 ${x + 16},272 L${x + 48},272 A16,16 0 0 1 ${x + 64},288 L${x + 64},320 A16,16 0 0 1 ${x + 48},336 Z`;
+const CP_BLUE = '#0D3AB8', CP_ORANGE = '#FF7B1A', CP_NAVY = '#081C3E';
+// (x,y) centre, size = width. draw 0..1 sweeps the blade in, pop 0..1 pops the squares in (orange first).
+function cpIcon(x, y, size, draw = 1, pop = 1, col = CP_BLUE) {
+  const k = size / 392;
+  let s = `<g transform="translate(${f1(x)},${f1(y)}) scale(${k.toFixed(4)}) translate(-196,-168)">`;
+  if (draw > 0.001) {
+    const w = 392 * clamp(draw);
+    s += `<clipPath id="cpc${Math.round(x)}${Math.round(y)}"><rect x="0" y="-10" width="${f1(w)}" height="360"/></clipPath><path d="${CP_BODY}" fill="${col}" clip-path="url(#cpc${Math.round(x)}${Math.round(y)})"/>`;
+  }
+  [[0, CP_ORANGE], [88, col], [176, col]].forEach(([sx, c], i) => {
+    const p = clamp(pop * 3 - i);
+    if (p <= 0) return;
+    const sc = i === 0 ? ease.back(p) : ease.out(p);
+    s += `<g transform="translate(${sx + 32},304) scale(${f1(sc)}) translate(${-sx - 32},-304)"><path d="${cpSquare(sx)}" fill="${c}"/></g>`;
+  });
+  return s + `</g>`;
 }
-// wordmark "clickPop" (geometric, from brand kit), drawn at the brand kit's scale; col = stroke colour
-function cpWordmark(x, y, scale, col = '#fff') {
-  const P = [
-    ['M 72.04 -80.34 A 37.5 37.5 0 1 0 72.04 -19.66', 0], ['M 12.5 -127.50 L 12.5 -12.5', 103.54], ['M 12.5 -87.50 L 12.5 -12.5', 151.54],
-    ['M 72.04 -80.34 A 37.5 37.5 0 1 0 72.04 -19.66', 199.54], ['M 12.5 -127.50 L 12.5 -12.5', 303.08], ['M 70 -90 L 15.0 -52', 303.08], ['M 34 -64.7 L 72 -12.5', 303.08],
-    ['M 12.5 -127.50 L 12.5 -12.5', 412.58], ['M 12.5 -127.50 L 45 -127.50 A 32 32 0 1 1 45 -63.50 L 12.5 -63.50', 412.58],
-    ['M 12.50 -50.0 A 37.5 37.5 0 1 1 87.50 -50.0 A 37.5 37.5 0 1 1 12.50 -50.0', 517.08], ['M 12.5 -87.50 L 12.5 39.50', 634.08], ['M 12.5 -70.00 A 37.5 37.5 0 1 1 12.5 -30.00', 634.08],
-  ];
-  return `<g transform="translate(${f1(x)},${f1(y)}) scale(${scale})"><g fill="none" stroke="${col}" stroke-width="25" stroke-linecap="round" stroke-linejoin="round">` +
-    P.map(([d, dx]) => `<path d="${d}" transform="translate(${dx} 0)"/>`).join('') + `</g><circle cx="164.04" cy="-121" r="14.5" fill="#FF7A1A"/></g>`;
+// Persian wordmark from the brand kit (raster, transparent); h = height in px, x,y = centre
+function cpWordmark(x, y, h, variant = 'white') {
+  const w = h * 672 / 150;
+  return `<image href="../lib/assets/cp-wordmark-${variant}.png" x="${f1(x - w / 2)}" y="${f1(y - h / 2)}" width="${f1(w)}" height="${f1(h)}"/>`;
 }
 
 // ---------------------------------------------------------------- ClickPop order screen (640x400)
@@ -108,30 +112,30 @@ function cpOrderScreen(step, chars, press = 0) {
   const link = 'instagram.com/holu.kitchen'.slice(0, chars);
   let s = `<rect width="640" height="400" fill="#f4f6fb"/>`;
   s += `<rect width="640" height="50" fill="#fff"/><rect y="49" width="640" height="1" fill="#e3e7f0"/>`;
-  s += cpIcon(610, 27, 34) + `<text x="586" y="35" font-size="20" font-weight="900" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">کلیک‌پاپ</text>`;
-  s += `<rect x="20" y="13" width="86" height="26" rx="8" fill="#0A1C3D"/><text x="63" y="32" font-size="13" font-weight="800" text-anchor="middle" fill="#fff" font-family="Vazirmatn">پنل من</text>`;
+  s += cpWordmark(556, 26, 28, 'navy');
+  s += `<rect x="20" y="13" width="86" height="26" rx="8" fill="#081C3E"/><text x="63" y="32" font-size="13" font-weight="800" text-anchor="middle" fill="#fff" font-family="Vazirmatn">پنل من</text>`;
   s += `<rect x="20" y="62" width="600" height="326" rx="16" fill="#fff" stroke="#e3e7f0" stroke-width="2"/>`;
-  s += `<text x="600" y="92" font-size="19" font-weight="900" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">سفارش سریع</text>`;
+  s += `<text x="600" y="92" font-size="19" font-weight="900" text-anchor="end" fill="#081C3E" font-family="Vazirmatn">سفارش سریع</text>`;
   s += `<text x="600" y="120" font-size="13" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">۱. کدام برنامه؟</text>`;
   const apps = [['اینستاگرام', 'url(#gStory)'], ['تلگرام', '#2aa3e0'], ['یوتیوب', '#ff2d2d'], ['تیک‌تاک', '#111']];
   apps.forEach(([n, c], i) => {
     const x = 520 - i * 120, sel = i === 0 && step >= 1;
-    s += `<rect x="${x}" y="130" width="96" height="66" rx="12" fill="${sel ? '#eaf1ff' : '#fff'}" stroke="${sel ? '#1668FF' : '#e3e7f0'}" stroke-width="${sel ? 3 : 2}"/>`;
+    s += `<rect x="${x}" y="130" width="96" height="66" rx="12" fill="${sel ? '#eaf1ff' : '#fff'}" stroke="${sel ? '#0D3AB8' : '#e3e7f0'}" stroke-width="${sel ? 3 : 2}"/>`;
     s += `<rect x="${x + 34}" y="138" width="28" height="28" rx="8" fill="${c}"/>`;
-    s += `<text x="${x + 48}" y="188" font-size="12" font-weight="700" text-anchor="middle" fill="#0A1C3D" font-family="Vazirmatn">${n}</text>`;
+    s += `<text x="${x + 48}" y="188" font-size="12" font-weight="700" text-anchor="middle" fill="#081C3E" font-family="Vazirmatn">${n}</text>`;
   });
   s += `<text x="600" y="222" font-size="13" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">۲. چه چیزی لازم دارید؟</text>`;
   ['فالوور', 'لایک', 'بازدید', 'کامنت'].forEach((n, i) => {
     const x = 530 - i * 86, sel = i === 0 && step >= 2;
-    s += `<rect x="${x}" y="232" width="74" height="32" rx="10" fill="${sel ? '#1668FF' : '#fff'}" stroke="${sel ? '#1668FF' : '#e3e7f0'}" stroke-width="2"/><text x="${x + 37}" y="254" font-size="14" font-weight="800" text-anchor="middle" fill="${sel ? '#fff' : '#0A1C3D'}" font-family="Vazirmatn">${n}</text>`;
+    s += `<rect x="${x}" y="232" width="74" height="32" rx="10" fill="${sel ? '#0D3AB8' : '#fff'}" stroke="${sel ? '#0D3AB8' : '#e3e7f0'}" stroke-width="2"/><text x="${x + 37}" y="254" font-size="14" font-weight="800" text-anchor="middle" fill="${sel ? '#fff' : '#081C3E'}" font-family="Vazirmatn">${n}</text>`;
   });
-  s += `<rect x="40" y="276" width="560" height="30" rx="8" fill="${step >= 3 ? '#fff1e6' : '#f4f6fb'}" stroke="${step >= 3 ? '#FF7A1A' : 'none'}" stroke-width="2"/>`;
-  s += `<text x="588" y="296" font-size="13" font-weight="800" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">قیمت هر ۱۰۰۰ · حداقل و حداکثر · سرعت</text><text x="52" y="296" font-size="13" font-weight="800" fill="#F2470F" font-family="Vazirmatn">پیش از پرداخت</text>`;
+  s += `<rect x="40" y="276" width="560" height="30" rx="8" fill="${step >= 3 ? '#fff1e6' : '#f4f6fb'}" stroke="${step >= 3 ? '#E86A00' : 'none'}" stroke-width="2"/>`;
+  s += `<text x="588" y="296" font-size="13" font-weight="800" text-anchor="end" fill="#081C3E" font-family="Vazirmatn">قیمت هر ۱۰۰۰ · حداقل و حداکثر · سرعت</text><text x="52" y="296" font-size="13" font-weight="800" fill="#BF5200" font-family="Vazirmatn">پیش از پرداخت</text>`;
   s += `<text x="600" y="326" font-size="13" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">۳. لینک عمومی پیج</text>`;
-  s += `<rect x="190" y="334" width="410" height="38" rx="10" fill="#fff" stroke="${step >= 4 ? '#1668FF' : '#d5dbe8'}" stroke-width="2"/>`;
-  s += `<text x="200" y="359" font-size="16" font-weight="600" fill="#0A1C3D" font-family="Vazirmatn" direction="ltr">${link}${step === 4 && chars < 26 ? '|' : ''}</text>`;
+  s += `<rect x="190" y="334" width="410" height="38" rx="10" fill="#fff" stroke="${step >= 4 ? '#0D3AB8' : '#d5dbe8'}" stroke-width="2"/>`;
+  s += `<text x="200" y="359" font-size="16" font-weight="600" fill="#081C3E" font-family="Vazirmatn" direction="ltr">${link}${step === 4 && chars < 26 ? '|' : ''}</text>`;
   const pr = press ? 2 : 0;
-  s += `<rect x="40" y="${334 + pr}" width="136" height="38" rx="10" fill="${press ? '#0B44D6' : '#1668FF'}"/><text x="108" y="${359 + pr}" font-size="16" font-weight="900" text-anchor="middle" fill="#fff" font-family="Vazirmatn">ثبت سفارش</text>`;
+  s += `<rect x="40" y="${334 + pr}" width="136" height="38" rx="10" fill="${press ? '#0A2E94' : '#0D3AB8'}"/><text x="108" y="${359 + pr}" font-size="16" font-weight="900" text-anchor="middle" fill="#fff" font-family="Vazirmatn">ثبت سفارش</text>`;
   if (step >= 4) s += `<text x="395" y="392" font-size="13" font-weight="800" text-anchor="middle" fill="#18a058" font-family="Vazirmatn">✓ رمز عبور لازم نیست</text>`;
   return s;
 }
@@ -139,29 +143,29 @@ function cpOrderScreen(step, chars, press = 0) {
 // progress p 0..1 of delivered bar (stops at 0.92), refund 0..1 shows the refund panel
 function cpProgressScreen(p, refund) {
   let s = `<rect width="640" height="400" fill="#f4f6fb"/><rect width="640" height="50" fill="#fff"/><rect y="49" width="640" height="1" fill="#e3e7f0"/>`;
-  s += cpIcon(610, 27, 34) + `<text x="586" y="35" font-size="20" font-weight="900" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">کلیک‌پاپ</text>`;
+  s += cpWordmark(556, 26, 28, 'navy');
   s += `<rect x="20" y="62" width="600" height="326" rx="16" fill="#fff" stroke="#e3e7f0" stroke-width="2"/>`;
   s += `<rect x="540" y="80" width="60" height="60" rx="14" fill="url(#gStory)"/>`;
-  s += `<text x="526" y="104" font-size="19" font-weight="900" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">فالوور اینستاگرام</text><text x="526" y="130" font-size="13" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">holu.kitchen · فقط لینک عمومی</text>`;
-  const st = refund > 0.5 ? ['تکمیل جزئی', '#FF7A1A'] : p >= 0.999 ? ['تکمیل', '#18a058'] : ['در حال انجام', '#1668FF'];
+  s += `<text x="526" y="104" font-size="19" font-weight="900" text-anchor="end" fill="#081C3E" font-family="Vazirmatn">فالوور اینستاگرام</text><text x="526" y="130" font-size="13" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">holu.kitchen · فقط لینک عمومی</text>`;
+  const st = refund > 0.5 ? ['تکمیل جزئی', '#E86A00'] : p >= 0.999 ? ['تکمیل', '#18a058'] : ['در حال انجام', '#0D3AB8'];
   s += `<rect x="40" y="84" width="130" height="34" rx="17" fill="${st[1]}" opacity="0.15"/><text x="105" y="107" font-size="15" font-weight="900" text-anchor="middle" fill="${st[1]}" font-family="Vazirmatn">${st[0]}</text>`;
-  s += `<text x="600" y="176" font-size="15" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">تعداد شروع</text><text x="40" y="176" font-size="17" font-weight="900" fill="#0A1C3D" font-family="Vazirmatn">${fa(940)}</text>`;
-  s += `<text x="600" y="212" font-size="15" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">پیشرفت زنده</text><text x="40" y="212" font-size="17" font-weight="900" fill="#0A1C3D" font-family="Vazirmatn">${fa(Math.round(p * 100))}٪</text>`;
+  s += `<text x="600" y="176" font-size="15" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">تعداد شروع</text><text x="40" y="176" font-size="17" font-weight="900" fill="#081C3E" font-family="Vazirmatn">${fa(940)}</text>`;
+  s += `<text x="600" y="212" font-size="15" font-weight="700" text-anchor="end" fill="#6b7590" font-family="Vazirmatn">پیشرفت زنده</text><text x="40" y="212" font-size="17" font-weight="900" fill="#081C3E" font-family="Vazirmatn">${fa(Math.round(p * 100))}٪</text>`;
   s += `<rect x="40" y="226" width="560" height="16" rx="8" fill="#e3e7f0"/><rect x="${f1(40 + 560 * (1 - p))}" y="226" width="${f1(560 * p)}" height="16" rx="8" fill="url(#icB)"/>`;
   if (refund > 0) {
     const a = ease.out(clamp(refund));
-    s += `<g opacity="${f1(a)}" transform="translate(0,${f1((1 - a) * 20)})"><rect x="40" y="262" width="560" height="108" rx="14" fill="#fff6ee" stroke="#FF7A1A" stroke-width="2.5" stroke-dasharray="7 5"/>`;
-    s += `<text x="584" y="296" font-size="17" font-weight="900" text-anchor="end" fill="#F2470F" font-family="Vazirmatn">بازگشت خودکار وجه</text>`;
-    s += `<text x="584" y="326" font-size="14" font-weight="700" fill="#0A1C3D" font-family="Vazirmatn" direction="rtl" text-anchor="start">مبلغِ مقدار تحویل‌نشده به کیف پول برگشت.</text>`;
+    s += `<g opacity="${f1(a)}" transform="translate(0,${f1((1 - a) * 20)})"><rect x="40" y="262" width="560" height="108" rx="14" fill="#fff6ee" stroke="#E86A00" stroke-width="2.5" stroke-dasharray="7 5"/>`;
+    s += `<text x="584" y="296" font-size="17" font-weight="900" text-anchor="end" fill="#BF5200" font-family="Vazirmatn">بازگشت خودکار وجه</text>`;
+    s += `<text x="584" y="326" font-size="14" font-weight="700" fill="#081C3E" font-family="Vazirmatn" direction="rtl" text-anchor="start">مبلغِ مقدار تحویل‌نشده به کیف پول برگشت.</text>`;
     s += `<text x="584" y="352" font-size="13" font-weight="700" fill="#6b7590" font-family="Vazirmatn" direction="rtl" text-anchor="start">رسید در دفتر کیف پول ثبت شد.</text>`;
-    s += `<g transform="translate(110,316) rotate(-10)"><rect x="-62" y="-22" width="124" height="44" rx="8" fill="none" stroke="#F2470F" stroke-width="4"/><text y="8" font-size="17" font-weight="900" text-anchor="middle" fill="#F2470F" font-family="Vazirmatn">برگشت خورد</text></g></g>`;
+    s += `<g transform="translate(110,316) rotate(-10)"><rect x="-62" y="-22" width="124" height="44" rx="8" fill="none" stroke="#BF5200" stroke-width="4"/><text y="8" font-size="17" font-weight="900" text-anchor="middle" fill="#BF5200" font-family="Vazirmatn">برگشت خورد</text></g></g>`;
   }
   return s;
 }
 
 function cursorArrow(x, y, s = 1, press = 0) {
   return `<g transform="translate(${f1(x)},${f1(y)}) scale(${(s * (1 - press * 0.15)).toFixed(3)})"><path d="M0,0 L0,46 L12,35 L22,58 L31,54 L21,32 L37,32 Z" fill="#fff" stroke="#111" stroke-width="4" stroke-linejoin="round"/></g>` +
-    (press ? `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(14 + press * 26)}" fill="none" stroke="#1668FF" stroke-width="5" opacity="${f1(1 - press)}"/>` : '');
+    (press ? `<circle cx="${f1(x)}" cy="${f1(y)}" r="${f1(14 + press * 26)}" fill="none" stroke="#0D3AB8" stroke-width="5" opacity="${f1(1 - press)}"/>` : '');
 }
 
 // ---------------------------------------------------------------- phone screens
@@ -209,9 +213,8 @@ function screenDM(k) {
   let s = `<rect width="300" height="560" rx="34" fill="#fff"/><circle cx="252" cy="50" r="22" fill="#ffb48c"/><text x="220" y="58" font-size="20" font-weight="900" text-anchor="end" fill="#1b1430" font-family="Vazirmatn">هلو</text><rect y="86" width="300" height="1" fill="#eee"/>`;
   if (k > 0) {
     const a = ease.back(clamp(k));
-    s += `<g transform="translate(150,230) scale(${f1(a)}) translate(-150,-230)"><rect x="24" y="130" width="250" height="200" rx="22" fill="#eaf1ff" stroke="#1668FF" stroke-width="3"/>` + cpIcon(220, 192, 60) +
-      `<text x="174" y="200" font-size="22" font-weight="900" text-anchor="end" fill="#0A1C3D" font-family="Vazirmatn">کلیک‌پاپ</text>` +
-      `<text x="150" y="258" font-size="26" font-weight="900" text-anchor="middle" fill="#1668FF" font-family="Vazirmatn" direction="ltr">clickpop.ir</text>` +
+    s += `<g transform="translate(150,230) scale(${f1(a)}) translate(-150,-230)"><rect x="24" y="130" width="250" height="200" rx="22" fill="#eaf1ff" stroke="#0D3AB8" stroke-width="3"/>` + cpWordmark(150, 192, 44, 'navy') +
+      `<text x="150" y="258" font-size="26" font-weight="900" text-anchor="middle" fill="#0D3AB8" font-family="Vazirmatn" direction="ltr">clickpop.ir</text>` +
       `<text x="150" y="300" font-size="15" font-weight="700" text-anchor="middle" fill="#6b7590" font-family="Vazirmatn">بدون رمز عبور، فقط لینک</text></g>`;
   }
   return s;
@@ -237,7 +240,7 @@ function confetti(t, a, cx, cy, n = 70) {
   if (t < a) return '';
   const k = t - a;
   let s = '';
-  const cols = ['#ff2e7e', '#ffe14d', '#1668FF', '#FF7A1A', '#5cc46a', '#9a7bff'];
+  const cols = ['#ff2e7e', '#ffe14d', '#0D3AB8', '#E86A00', '#5cc46a', '#9a7bff'];
   for (let i = 0; i < n; i++) {
     const ang = -Math.PI / 2 + (rnd(i) - 0.5) * 2.4, sp = 700 + rnd(i + 3) * 900;
     const x = cx + Math.cos(ang) * sp * k * 0.9 + Math.sin(k * 3 + i) * 30;
@@ -276,9 +279,9 @@ const PROP_DEFS = `
 <linearGradient id="gCab" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d9825a"/><stop offset="1" stop-color="#a85a36"/></linearGradient>
 <linearGradient id="gTiles" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#e8d9c8"/><stop offset="1" stop-color="#b9a48e"/></linearGradient>
 <linearGradient id="gLock" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a1f5a"/><stop offset="1" stop-color="#8a2a6a"/></linearGradient>
-<linearGradient id="icB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3D89FF"/><stop offset="1" stop-color="#0B44D6"/></linearGradient>
-<linearGradient id="icO" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#F2470F"/><stop offset="1" stop-color="#FFA22A"/></linearGradient>
-<linearGradient id="gInk" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0A1C3D"/><stop offset="1" stop-color="#132c5e"/></linearGradient>
+<linearGradient id="icB"><stop offset="0" stop-color="#0D3AB8"/><stop offset="1" stop-color="#0D3AB8"/></linearGradient>
+<linearGradient id="icO"><stop offset="0" stop-color="#FF7B1A"/><stop offset="1" stop-color="#FF7B1A"/></linearGradient>
+<linearGradient id="gInk" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0D3AB8"/><stop offset="1" stop-color="#0D3AB8"/></linearGradient>
 `;
 
 // world position of Kermo's head for an apple placed with o = {x, y, s, emerge, lean}

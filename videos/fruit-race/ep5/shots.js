@@ -74,27 +74,28 @@ function shotKick(t) {
 
 function brandCard(t) {
   const k = t - BRAND;
-  let s = `<rect x="-200" y="-200" width="1480" height="2320" fill="url(#gInk)"/>`;
-  s += rays(t, 540, 620, '#3D89FF', 14, 0.05);
-  for (let i = 0; i < 26; i++) s += `<circle cx="${f1(rnd(i) * 1080)}" cy="${f1((rnd(i + 40) * 1920 - k * 40 * (1 + rnd(i + 8))) % 1920 + (rnd(i + 40) * 1920 - k * 40 < 0 ? 1920 : 0))}" r="${f1(2 + rnd(i + 3) * 4)}" fill="#fff" opacity="0.25"/>`;
-  const draw = ease.io(prog(t, BRAND + 0.3, BRAND + 1.0)), pop = spring(t, BRAND + 1.0, 2.6, 0.35);
-  s += cpIcon(540, 560, 300, draw, pop, '#fff');
-  const wm = ease.out(prog(t, BRAND + 1.2, BRAND + 1.6));
-  s += `<g opacity="${f1(wm)}" transform="translate(0,${f1((1 - wm) * 30)})">` + cpWordmark(540 - 760 * 0.62 / 2, 860, 0.62, '#fff') + `</g>`;
-  const tg = ease.out(prog(t, BRAND + 1.8, BRAND + 2.2));
-  s += `<text x="540" y="${f1(1000 + (1 - tg) * 30)}" font-size="54" font-weight="900" text-anchor="middle" fill="#fff" opacity="${f1(tg)}" font-family="Vazirmatn" direction="rtl">بدون رمز عبور. با رسید برای هر سفارش.</text>`;
+  let s = `<rect x="-200" y="-200" width="1480" height="2320" fill="${CP_BLUE}"/>`;
+  s += rays(t, 540, 620, '#ffffff', 14, 0.045);
+  for (let i = 0; i < 26; i++) s += `<circle cx="${f1(rnd(i) * 1080)}" cy="${f1(((rnd(i + 40) * 1920 - k * 40 * (1 + rnd(i + 8))) % 1920 + 1920) % 1920)}" r="${f1(2 + rnd(i + 3) * 4)}" fill="#fff" opacity="0.2"/>`;
+  // symbol builds big, then hands over to the full lockup
+  const draw = ease.io(prog(t, BRAND + 0.3, BRAND + 0.9)), pop = prog(t, BRAND + 0.8, BRAND + 1.2);
+  const hand = ease.io(prog(t, BRAND + 1.5, BRAND + 1.9));
+  if (hand < 1) s += `<g opacity="${f1(1 - hand)}">` + cpIcon(lerp(540, 866, hand), lerp(600, 621, hand), lerp(420, 208, hand), draw, pop, '#fff') + `</g>`;
+  if (hand > 0) s += `<g opacity="${f1(hand)}">` + cpWordmark(540, 620, 196, 'white') + `</g>`;
+  const tg = ease.out(prog(t, BRAND + 2.0, BRAND + 2.4));
+  s += `<text x="540" y="${f1(870 + (1 - tg) * 30)}" font-size="54" font-weight="900" text-anchor="middle" fill="#fff" opacity="${f1(tg)}" font-family="Vazirmatn" direction="rtl">بدون رمز عبور. با رسید برای هر سفارش.</text>`;
   ['فقط لینک عمومی پیج', 'پیشرفت زندهٔ سفارش', 'بازگشت خودکار وجهِ تحویل‌نشده'].forEach((f, i) => {
-    const a = spring(t, BRAND + 2.6 + i * 0.5, 2.6, 0.45);
+    const a = spring(t, BRAND + 2.7 + i * 0.5, 2.6, 0.45);
     if (a <= 0) return;
-    const y = 1090 + i * 100;
-    s += `<g transform="translate(540,${y}) scale(${f1(Math.max(0, a))})"><rect x="-330" y="-38" width="660" height="76" rx="38" fill="#fff" fill-opacity="0.08" stroke="#3D89FF" stroke-width="3"/>` +
-      `<circle cx="285" cy="0" r="22" fill="#FF7A1A"/><path d="M274,0 l8,8 l14,-16" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/>` +
+    const y = 990 + i * 100;
+    s += `<g transform="translate(540,${y}) scale(${f1(Math.max(0, a))})"><rect x="-330" y="-38" width="660" height="76" rx="38" fill="#fff" fill-opacity="0.1" stroke="#fff" stroke-opacity="0.45" stroke-width="3"/>` +
+      `<circle cx="285" cy="0" r="22" fill="#fff"/><path d="M274,0 l8,8 l14,-16" stroke="${CP_BLUE}" stroke-width="5" fill="none" stroke-linecap="round"/>` +
       `<text x="245" y="13" font-size="36" font-weight="800" text-anchor="end" fill="#fff" font-family="Vazirmatn">${f}</text></g>`;
   });
   const u = spring(t, BRAND + 4.5, 2.4, 0.4);
-  if (u > 0) s += `<text x="540" y="1440" font-size="104" font-weight="900" text-anchor="middle" fill="url(#icO)" font-family="Vazirmatn" direction="ltr" transform="translate(540,1405) scale(${f1(u)}) translate(-540,-1405)">clickpop.ir</text>`;
+  if (u > 0) s += `<text x="540" y="1350" font-size="104" font-weight="900" text-anchor="middle" fill="#fff" font-family="Vazirmatn" direction="ltr" transform="translate(540,1315) scale(${f1(u)}) translate(-540,-1315)">clickpop.ir</text>`;
   const c = spring(t, BRAND + 5.2, 2.4, 0.4), pulse = 1 + 0.04 * Math.sin(Math.max(0, t - BRAND - 6) * 5);
-  if (c > 0) s += `<g transform="translate(540,1540) scale(${f1(c * pulse)})"><rect x="-260" y="-56" width="520" height="112" rx="56" fill="#1668FF"/><text y="18" font-size="50" font-weight="900" text-anchor="middle" fill="#fff" font-family="Vazirmatn">ساخت حساب رایگان</text></g>`;
+  if (c > 0) s += `<g transform="translate(540,1480) scale(${f1(c * pulse)})"><rect x="-260" y="-56" width="520" height="112" rx="56" fill="#fff"/><text y="18" font-size="50" font-weight="900" text-anchor="middle" fill="${CP_BLUE}" font-family="Vazirmatn">ساخت حساب رایگان</text></g>`;
   // Holu and Tooti peek in from the bottom and wave
   const peek = ease.back(prog(t, BRAND + 5.8, BRAND + 6.4));
   s += holu(t, { x: 150, y: 2260 - peek * 390, s: 0.7, m: mood('happy'), look: [0.3, -0.6], handL: [-160, -330 + Math.sin(t * 8) * 30], handR: [150, -110] });
