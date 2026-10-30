@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="fa" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>میوه‌استار · قسمت ۱</title>
+<link rel="stylesheet" href="../fonts/vazirmatn.css">
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Vazirmatn', sans-serif; }
+  svg { position: absolute; inset: 0; display: block; }
+  .ov { position: absolute; left: 0; right: 0; text-align: center; pointer-events: none; direction: rtl; }
+  #sub { top: 1420px; display: flex; justify-content: center; }
+  #sub .box { max-width: 860px; background: rgba(16, 8, 30, 0.82); border-radius: 34px; padding: 22px 40px 28px; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+  #sub .who { font-size: 34px; font-weight: 900; margin-bottom: 4px; }
+  #sub .txt { font-size: 56px; font-weight: 800; color: #fff; line-height: 1.45; }
+  #title { inset: 0; overflow: hidden; }
+  #title .band { position: absolute; left: -200px; right: -200px; top: 640px; height: 640px; transform-origin: 50% 50%; background: repeating-linear-gradient(-55deg, #ff2e7e 0 90px, #ff4f93 90px 180px); }
+  #title .name { position: absolute; left: 0; right: 0; top: 770px; font-size: 190px; font-weight: 900; color: #fff; text-shadow: 0 10px 0 #b0105a, 0 22px 40px rgba(0,0,0,.35); }
+  #title .ep { position: absolute; left: 0; right: 0; top: 1040px; font-size: 64px; font-weight: 800; color: #ffe14d; }
+  #card { inset: 0; background: #05040c; color: #fff; }
+  #card .t1 { position: absolute; left: 0; right: 0; top: 820px; font-size: 92px; font-weight: 900; }
+  #end { inset: 0; }
+  #end .t1 { position: absolute; left: 0; right: 0; top: 330px; font-size: 128px; font-weight: 900; color: #fff; text-shadow: 0 8px 0 #7a0a1a, 0 20px 50px rgba(0,0,0,.6); }
+  #end .t2 { position: absolute; left: 0; right: 0; top: 520px; font-size: 64px; font-weight: 800; color: #ffe14d; }
+  #end .t3 { position: absolute; left: 140px; right: 140px; top: 1430px; font-size: 46px; font-weight: 800; color: #fff; background: rgba(16,8,30,.85); border-radius: 30px; padding: 22px 30px; }
+  #flash { inset: 0; background: #fff; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="v" width="1080" height="1920" viewBox="0 0 1080 1920"><defs id="defs"></defs><g id="world"></g><g id="fx"></g></svg>
+  <div id="title" class="ov"><div class="band"></div><div class="name">میوه‌استار</div><div class="ep">قسمت ۱ · مسابقه</div></div>
+  <div id="card" class="ov"><div class="t1">همان شب...</div></div>
+  <div id="end" class="ov"><div class="t1">ادامه دارد...</div><div class="t2">قسمت ۲ · رمز</div><div class="t3">فالو کن که قسمت بعد رو از دست ندی</div></div>
+  <div id="sub" class="ov"><div class="box"><div class="who"></div><div class="txt"></div></div></div>
+  <div id="flash" class="ov"></div>
+</div>
+<script>window.ready = false;</script>
+<script src="timeline.js"></script>
+<script src="../lib/chars.js"></script>
+<script src="../lib/scenes.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+$('defs').innerHTML = DEFS + SCENE_DEFS;
+
+const NAMES = { ananas: ['آقای آناناس', '#ffc23d'], moozi: ['موزی', '#fff07a'], holu: ['هلو', '#ffb48c'], kermo: ['کرمو', '#9be36b'] };
+
+// camera: world point (cx,cy) lands at frame (540,860), zoomed by z
+const cam = (cx, cy, z, sx = 0, sy = 0) => `translate(${f1(540 + sx)},${f1(860 + sy)}) scale(${z.toFixed(4)}) translate(${f1(-cx)},${f1(-cy)})`;
+const shake = (t, a, amp) => t < a ? [0, 0] : [amp * Math.exp(-(t - a) * 7) * Math.sin((t - a) * 71), amp * Math.exp(-(t - a) * 7) * Math.cos((t - a) * 53)];
+
+const DUR = TL.duration;
+const SLAM = 0.32, KERMO = 24.85;
+const TAPS = [0, 1, 2, 3, 4, 5].map(k => 33.2 + k * 0.32);
+
+// ---------------------------------------------------------------- stage world
+function stageWorld(t) {
+  let s = stageBG(t);
+  s += spotPool(540, 1250, 260) + spotPool(215, 1345, 170) + spotPool(860, 1345, 170);
+
+  // Mr. Ananas behind the podium
+  const k = ease.in(prog(t, 0, SLAM));
+  let handR = [lerp(150, 130, k), lerp(-430, -110, k)], cardRot = lerp(-14, -4, k);
+  let handL = [-165, -150];
+  let am = mood('stern');
+  if (t > 0.6 && t < 3.6) handL = [-175, -170 - Math.abs(Math.sin(t * 5)) * 40 * (speaking('ananas', t) ? 1 : 0)];
+  if (t > 3.3 && t < 5.6) am = mood('proud');
+  if (t >= 5.6) {
+    am = mood(t > 9.7 ? 'proud' : 'stern');
+    const up = ease.out(prog(t, 6.3, 6.7));
+    handL = [lerp(-175, -220, up), lerp(-170, -420, up)];
+    if (t > 9.8) handL = [-175, -170];
+    handR = [130, -110];
+  }
+  const cardY = t < SLAM ? 0 : 0;
+  const sl = t >= SLAM ? Math.exp(-(t - SLAM) * 9) * 0.06 : 0;
+  s += ananas(t, {
+    x: 540, y: 1140, s: 0.95, m: am, squash: sl, look: t >= 5.6 ? [0, 0.1] : [0, 0.25],
+    handL, handR,
+    propFront: goldCard(handR[0] - 10, handR[1] - 20 + cardY, 0.62, cardRot, prog(t, 0.0, 1.2)),
+  });
+  s += podium(540, 1092 + (t >= SLAM ? Math.exp(-(t - SLAM) * 12) * 10 * Math.cos((t - SLAM) * 40) : 0));
+  // dust puff on the slam
+  if (t >= SLAM && t < SLAM + 0.9) {
+    const p = prog(t, SLAM, SLAM + 0.9);
+    for (let i = 0; i < 10; i++) {
+      const a = Math.PI * (i / 9), r = 60 + p * 220;
+      s += `<circle cx="${f1(540 + Math.cos(a) * r * (i % 2 ? 1 : -1))}" cy="${f1(1080 - Math.sin(a) * r * 0.18)}" r="${f1(26 * (1 - p) + 6)}" fill="#fff3d6" opacity="${f1(0.8 * (1 - p))}"/>`;
+    }
+  }
+
+  // Moozi (left)
+  let mm = mood('proud'), mHandL = [-30, -175], mHandR = [44, -165], gd = 0, wink = 0, mProp = '', mLook = [0.7, -0.1];
+  if (t >= 10.2 && t < 19) {
+    const raise = ease.back(prog(t, 10.5, 10.95));
+    mHandR = [lerp(44, 150, raise), lerp(-165, -300, raise)];
+    mLook = [0.9, -0.3];
+    if (raise > 0.05) mProp = phone(mHandR[0] + 20, mHandR[1] - 90, 0.34, 10, screenProfile('moozi.luxury', '۱۲٫۴ هزار', 'فالوور', '#f7b500'), t > 11.2 ? 0.5 : 0);
+    gd = ease.out(prog(t, 12.3, 12.6));
+    wink = t > 12.6 && t < 13.05 ? Math.sin(Math.PI * prog(t, 12.6, 13.05)) : 0;
+    mm = t > 12.3 ? mood('proud', { lid: 0 }) : mood('proud');
+    mHandL = [-120, -150];
+  }
+  s += moozi(t, { x: 215, y: 1345, s: 0.8, m: mm, look: mLook, handL: mHandL, handR: mHandR, glasses: gd, wink, propFront: mProp });
+  if (t > 12.6 && t < 13.4) {
+    const p = prog(t, 12.6, 13.4), sz = Math.sin(Math.PI * p) * 34;
+    s += `<path transform="translate(${f1(215 - 0.8 * 52)},${f1(1345 - 0.8 * 300)}) rotate(${f1(p * 90)})" d="M0,${-sz} L${sz * 0.25},${-sz * 0.25} L${sz},0 L${sz * 0.25},${sz * 0.25} L0,${sz} L${-sz * 0.25},${sz * 0.25} L${-sz},0 L${-sz * 0.25},${-sz * 0.25} Z" fill="#fff8c4"/>`;
+  }
+
+  // Holu (right)
+  let hm = mood('happy'), hLook = [-0.7, -0.1], hHandL = [-150, -110], hHandR = [150, -110], hProp = '';
+  if (t >= 14.3) {
+    hm = t < 16.4 ? mood('worried') : mood('sad');
+    hLook = [0.75, 0.35];
+    hHandL = [-150, -110]; hHandR = [150, -215];
+    hProp = phone(178, -290, 0.26, 10, screenProfile('holu.kitchen', '۸۰۰', 'فالوور', '#ff5d8f'));
+  } else if (t >= 10.2) {
+    hm = mood('worried'); hLook = [-0.9, -0.1];
+  }
+  s += holu(t, { x: 860, y: 1345, s: 0.82, m: hm, look: hLook, handL: hHandL, handR: hHandR, propFront: hProp });
+
+  // "7 days" badge
+  if (t >= 6.7 && t < 10.3) {
+    const sp = spring(t, 6.7, 2.6, 0.35);
+    s += `<g transform="translate(300,735) scale(${f1(sp * 0.85)}) rotate(${f1((1 - sp) * -20)})">` +
+      `<circle r="128" fill="#ffe14d" stroke="#b0105a" stroke-width="12"/><circle r="128" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="8 16" transform="rotate(${f1(t * 40)})"/>` +
+      `<text y="22" font-size="110" font-weight="900" text-anchor="middle" fill="#b0105a" font-family="Vazirmatn">۷</text>` +
+      `<text y="82" font-size="40" font-weight="900" text-anchor="middle" fill="#b0105a" font-family="Vazirmatn">روز</text></g>`;
+  }
+  s += crowd(t, 1620);
+  return s;
+}
+
+// ---------------------------------------------------------------- night world
+function nightWorld(t) {
+  let s = nightBG(t);
+  s += crate(770, 1170);
+  // Moozi
+  const startle = t >= KERMO + 0.05 ? Math.sin(Math.PI * prog(t, KERMO + 0.05, KERMO + 0.45)) : 0;
+  let mm = mood('neutral'), look = [0.5, -0.5], hR = [110, -270], hL = [-110, -140], gd = 0;
+  const count = t < 23.1 ? '۱۲٫۴ هزار' : '۱۲٫۳ هزار';
+  if (speaking('moozi', t) && t < 24) mm = mood('angry');
+  if (t > 23.9 && t < KERMO) mm = mood('sad');
+  const tapping = [22.6, 23.1].some(a => t > a - 0.15 && t < a + 0.12);
+  if (tapping) hL = [90, -300];
+  if (t >= KERMO) { mm = mood('shocked'); look = [0.9, -0.2]; hR = [130, -240]; }
+  if (t >= KERMO + 0.9) { mm = mood('worried'); }
+  if (t >= 28.2) { mm = mood('shocked', { gasp: 0, smile: 0.45 }); gd = ease.out(prog(t, 28.25, 28.55)); }
+  if (t >= 29.8) { mm = mood('happy'); }
+  const ph = phone(hR[0] + 20, hR[1] - 80, 0.32, 8, screenProfile('moozi.luxury', count, 'فالوور', '#f7b500'), 0.7);
+  s += moozi(t, { x: 330, y: 1350 - startle * 90, s: 0.95, m: mm, look, handL: hL, handR: hR, glasses: gd, squash: -startle * 0.06, propFront: ph });
+  // Kermo's apple on the crate
+  const shakeAmt = t > 24.3 && t < KERMO ? 6 : 0;
+  const emerge = t < KERMO ? 0 : spring(t, KERMO, 2.4, 0.3);
+  let km = mood('sly'), lean = -18, hand = null;
+  if (t >= 25.2 && t < 26) hand = [-60, 10];
+  if (t >= 30.0) { lean = lerp(-18, -34, ease.io(prog(t, 31.0, 31.8))); hand = [-58, 34 + Math.sin(t * 9) * 6]; }
+  s += kermoApple(t, { x: 770, y: 1180, s: 0.78, emerge, shake: shakeAmt, m: km, lean, hand, look: [-0.9, 0.1] });
+  return s;
+}
+
+// ---------------------------------------------------------------- phone insert
+function phoneInsert(t) {
+  let s = `<rect width="1080" height="1920" fill="#0b0a1c"/><circle cx="540" cy="860" r="700" fill="#2a3a8a" opacity="0.35"/>`;
+  const dots = TAPS.filter(a => t >= a).length;
+  const z = lerp(2.15, 2.3, ease.io(prog(t, 33.0, 35.2)));
+  s += phone(540, 900, z, -3, screenPassword(dots), 0);
+  // gloved thumb taps the keyboard area
+  // thumb glides between keys and dips on each tap
+  const keyX = i => 540 + (rnd(i * 7 + 3) - 0.5) * 300;
+  let i = TAPS.findIndex(a => a > t);
+  if (i < 0) i = TAPS.length;
+  const prevT = i > 0 ? TAPS[i - 1] : 33.0, nextT = i < TAPS.length ? TAPS[i] : prevT + 1;
+  const kx = lerp(keyX(Math.max(i - 1, 0)), keyX(Math.min(i, TAPS.length - 1)), ease.io(prog(t, prevT + 0.06, nextT - 0.06)));
+  const down = Math.max(...TAPS.map(a => Math.exp(-Math.abs(t - a) * 14)));
+  const gx = kx, gy = 1560 - down * 110;
+  s += `<path d="M${f1(gx + 40)},${f1(gy + 60)} Q${f1(gx + 260)},${f1(gy + 260)} ${f1(gx + 330)},2000" stroke="#3a2416" stroke-width="120" fill="none" stroke-linecap="round"/><path d="M${f1(gx + 40)},${f1(gy + 60)} Q${f1(gx + 260)},${f1(gy + 260)} ${f1(gx + 330)},2000" stroke="#ffd84a" stroke-width="96" fill="none" stroke-linecap="round"/>`;
+  s += `<g transform="translate(${f1(gx)},${f1(gy)}) rotate(-25)"><ellipse rx="95" ry="120" fill="#fff" stroke="#3a2416" stroke-width="8"/><ellipse cx="-10" cy="-70" rx="42" ry="60" fill="#fff" stroke="#3a2416" stroke-width="7"/><path d="M-50,50 Q0,75 50,50" stroke="#d9d2c6" stroke-width="10" fill="none"/></g>`;
+  return s;
+}
+
+// ---------------------------------------------------------------- frame
+window.render = function (t) {
+  t = Math.min(t, DUR - 1e-3);
+  const W = $('world');
+  let tw = t, camStr = '', body = '', filt = 'none';
+
+  if (t < 19.1) {
+    body = stageWorld(t);
+    let [sx, sy] = shake(t, SLAM, 26);
+    if (t < 5.6) camStr = cam(540, 990, lerp(1.72, 1.86, ease.io(prog(t, 0, 3.6))), sx, sy);
+    else if (t < 10.2) camStr = cam(540, 1030, lerp(1.0, 1.05, prog(t, 5.6, 10.2)));
+    else if (t < 14.3) camStr = cam(215, 1060, lerp(2.0, 2.15, ease.io(prog(t, 10.2, 14.3))));
+    else camStr = cam(860, 1085, lerp(2.05, 2.3, ease.io(prog(t, 14.3, 19.1))));
+  } else if (t < 33.0) {
+    body = nightWorld(t);
+    if (t < 24.3) camStr = cam(560, 1030, lerp(1.12, 1.18, prog(t, 19.1, 24.3)));
+    else if (t < 28.2) { const punch = t > KERMO ? 0.08 * Math.exp(-(t - KERMO) * 4) : 0; camStr = cam(590, 1010, lerp(1.24, 1.3, prog(t, 24.3, 28.2)) + punch); }
+    else if (t < 30.0) camStr = cam(330, 1040, lerp(2.0, 2.08, prog(t, 28.2, 30.0)));
+    else camStr = cam(800, 880, lerp(2.35, 2.6, ease.io(prog(t, 30.0, 33.0))));
+    if (t >= 30.0) body += `<rect x="600" y="700" width="400" height="500" fill="url(#gUnder)"/>`;
+  } else {
+    tw = Math.min(t, 35.2);
+    body = phoneInsert(tw);
+    camStr = '';
+    if (t >= 35.2) filt = 'saturate(0.35) brightness(0.55) blur(5px)';
+  }
+  W.setAttribute('transform', camStr);
+  W.innerHTML = body;
+  $('v').style.filter = filt;
+  $('fx').innerHTML = `<rect width="1080" height="1920" fill="url(#gVig)" opacity="${t >= 19.1 ? 0.9 : 0.55}"/>` +
+    (t >= 35.2 ? `<rect width="1080" height="1920" fill="#c0102a" opacity="${f1(0.35 * ease.out(prog(t, 35.2, 35.5)))}"/>` : '');
+
+  // impact flash
+  $('flash').style.opacity = t >= SLAM && t < SLAM + 0.25 ? f1(0.5 * (1 - prog(t, SLAM, SLAM + 0.25))) : 0;
+
+  // title card
+  const ti = ease.out(prog(t, 3.55, 3.85)), to = ease.in(prog(t, 5.3, 5.6));
+  const T = $('title');
+  T.style.display = t > 3.5 && t < 5.65 ? 'block' : 'none';
+  T.querySelector('.band').style.transform = `translateX(${f1((1 - ti) * 1400 - to * 1400)}px) rotate(-8deg)`;
+  const ns = spring(t, 3.8, 2.2, 0.35);
+  T.querySelector('.name').style.transform = `translateX(${f1(-to * 1400)}px) scale(${f1(ns)})`;
+  T.querySelector('.ep').style.transform = `translateX(${f1(-to * 1400)}px) translateY(${f1((1 - ease.out(prog(t, 4.1, 4.4))) * 60)}px)`;
+  T.querySelector('.ep').style.opacity = f1(prog(t, 4.1, 4.4));
+
+  // "that night" card
+  const C = $('card');
+  const cIn = prog(t, 18.95, 19.2), cOut = prog(t, 20.5, 20.8);
+  C.style.display = cIn > 0 && cOut < 1 ? 'block' : 'none';
+  C.style.opacity = f1(Math.min(cIn, 1 - cOut));
+  C.querySelector('.t1').style.opacity = f1(prog(t, 19.2, 19.5));
+  C.querySelector('.t1').style.letterSpacing = f1(lerp(8, 0, ease.out(prog(t, 19.2, 20.4)))) + 'px';
+
+  // end card
+  const E = $('end');
+  E.style.display = t >= 35.3 ? 'block' : 'none';
+  const e1 = spring(t, 35.4, 2.4, 0.4);
+  E.querySelector('.t1').style.transform = `scale(${f1(e1)})`;
+  E.querySelector('.t2').style.opacity = f1(prog(t, 35.9, 36.2));
+  E.querySelector('.t2').style.transform = `translateY(${f1((1 - ease.out(prog(t, 35.9, 36.2))) * 40)}px)`;
+  E.querySelector('.t3').style.opacity = f1(prog(t, 36.4, 36.7));
+
+  // subtitles
+  const L = TL.lines.find(l => t >= l.from - 0.08 && t <= l.to + 0.35);
+  const S = $('sub');
+  if (L) {
+    const p = spring(t, L.from - 0.08, 3, 0.5), out = prog(t, L.to + 0.2, L.to + 0.35);
+    S.style.display = 'flex';
+    S.style.opacity = f1(1 - out);
+    S.querySelector('.box').style.transform = `scale(${f1(0.85 + 0.15 * p)})`;
+    S.querySelector('.who').textContent = NAMES[L.who][0];
+    S.querySelector('.who').style.color = NAMES[L.who][1];
+    S.querySelector('.txt').textContent = L.text;
+  } else S.style.display = 'none';
+};
+document.fonts.ready.then(() => { window.render(0); window.ready = true; });
+</script>
+</body>
+</html>

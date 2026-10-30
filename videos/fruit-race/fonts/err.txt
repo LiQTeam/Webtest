@@ -1,0 +1,2 @@
+  Vazirmatn 500 900 normal [arabic] 46 kB (variable: one file for every weight)
+  Vazirmatn 500 900 normal [latin] 35 kB (variable: one file for every weight)
