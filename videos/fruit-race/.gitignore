@@ -1,3 +1,4 @@
 qa/
 tests/
 ep*/audio/mix.wav
+__pycache__/
